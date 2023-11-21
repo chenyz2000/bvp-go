@@ -6,14 +6,6 @@ import (
 	"strconv"
 )
 
-const (
-	rootPath     = "../video/"
-	jsonFileName = "info.json"
-	jsonPath     = rootPath + jsonFileName
-)
-
-var favorMap FavorMap // 全局维护的对象
-
 func RefreshService() {
 	favorMap = Deserialize(jsonPath) // 旧json文件
 
@@ -55,12 +47,12 @@ func RefreshService() {
 					// TODO 先不管番剧了，先支持普通视频的xml
 					// TODO 待处理的字段
 					cover := ""
-					var downloadTime int64
 					//
 
 					quality1 := getStringValue(entry, "quality_pithy_description") // 4K、1080P或其他
 					quality2 := getStringValue(entry, "quality_superscript")       // 高码率或空字符串
 					clarity := quality1 + quality2
+					updateTime := getInt64Value(entry, "time_update_stamp")
 
 					// 在page_data中的数据
 					var pageTitle, direction string
@@ -101,29 +93,28 @@ func RefreshService() {
 
 					// CustomInfo不能清零了，要从旧的对象中读
 					var customInfo *CustomInfo
-					key := itemName + ";" + pageName
-					customInfo = FindCustomInfo(favorMap, key)
+					key := itemName + videoNameConnector + pageName
+					customInfo = findCustomInfo(favorMap, key)
 
 					// 组装完整Info对象
 					videoPage := &VideoInfo{
-						Title:        getStringValue(entry, "title"),
-						PageTitle:    pageTitle,
-						Type:         "",
-						OwnerId:      getInt64Value(entry, "owner_id"),
-						OwnerName:    getStringValue(entry, "owner_name"),
-						Cover:        cover,
-						DownloadTime: downloadTime,
-						UpdateTime:   getInt64Value(entry, "time_update_stamp"),
-						Direction:    direction,
-						Size:         getInt64Value(entry, "total_bytes"),
-						Duration:     getInt64Value(entry, "total_time_milli"),
-						Clarity:      clarity,
-						Height:       height,
-						Width:        width,
-						Fps:          fps,
-						Bvid:         getStringValue(entry, "bvid"),
-						Avid:         getInt64Value(entry, "avid"),
-						CustomInfo:   customInfo,
+						Title:      getStringValue(entry, "title"),
+						PageTitle:  pageTitle,
+						Type:       "",
+						OwnerId:    getInt64Value(entry, "owner_id"),
+						OwnerName:  getStringValue(entry, "owner_name"),
+						Cover:      cover,
+						UpdateTime: updateTime,
+						Direction:  direction,
+						Size:       getInt64Value(entry, "total_bytes"),
+						Duration:   getInt64Value(entry, "total_time_milli"),
+						Clarity:    clarity,
+						Height:     height,
+						Width:      width,
+						Fps:        fps,
+						Bvid:       getStringValue(entry, "bvid"),
+						Avid:       getInt64Value(entry, "avid"),
+						CustomInfo: customInfo,
 					}
 
 					infoMap[key] = videoPage
@@ -137,4 +128,25 @@ func RefreshService() {
 
 	// 写入info.json文件
 	Serialize(jsonPath, favorMap)
+}
+
+// 根据videoName（item+page）获取其CustomInfo
+func findCustomInfo(favorMap FavorMap, key string) *CustomInfo {
+	//var favor *InfoMap
+	for _, infoMap := range favorMap {
+		for k, videoInfo := range infoMap {
+			if k == key {
+				// 若找到对应的key则返回已有的CustomInfo
+				customInfo := videoInfo.CustomInfo
+				return customInfo
+			}
+		}
+	}
+	// 若没找到则初始化一个CustomInfo对象
+	return &CustomInfo{
+		People:      make([]string, 0),
+		Tag:         make([]string, 0),
+		Description: "",
+		StarLevel:   0,
+	}
 }

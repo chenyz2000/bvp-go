@@ -9,6 +9,7 @@ import (
 type VideoApi struct {
 }
 
+// 根据筛选条件返回favorMap
 func (v *VideoApi) List(c *gin.Context) {
 	param := &ListParam{}
 	err := c.ShouldBindQuery(param)
@@ -40,6 +41,7 @@ func (v *VideoApi) List(c *gin.Context) {
 			newInfoMap[name] = videoInfo
 		}
 
+		// TODO param添加sort，返回sort后的列表，而不是返回map
 		// 若某个收藏夹下筛选后不为空，则加入newFavorMap
 		if len(newInfoMap) > 0 {
 			newFavorMap[favorName] = newInfoMap
@@ -48,7 +50,7 @@ func (v *VideoApi) List(c *gin.Context) {
 	c.JSON(200, newFavorMap)
 }
 
-// 可以批量修改，视频原收藏夹不限，只能设置一个目的收藏夹
+// 批量修改视频的收藏夹，视频原收藏夹不限，只能设置一个目的收藏夹
 func (v *VideoApi) UpdateFavor(c *gin.Context) {
 	param := &UpdateFavorParam{}
 	err := c.ShouldBindJSON(param)
@@ -58,12 +60,12 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 	}
 	newFavorPath := rootPath + param.NewFavorName
 	for _, videoName := range param.VideoNameList {
-		oldFavorName := FindFavorName(videoName, favorMap)
+		oldFavorName := findFavorName(videoName, favorMap)
 		if oldFavorName == param.NewFavorName {
 			continue
 		}
 
-		tmp := strings.Split(videoName, ";")
+		tmp := strings.Split(videoName, videoNameConnector)
 		itemName := tmp[0]
 		pageName := tmp[1]
 		if !PathExists(newFavorPath) {
@@ -99,6 +101,7 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 			}
 		}
 		// 修改favorMap对象
+		// TODO 修改CustomInfo的FavorName字段
 		favorMap[param.NewFavorName][videoName] = favorMap[oldFavorName][videoName]
 		delete(favorMap[oldFavorName], videoName)
 	}
@@ -107,7 +110,19 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 	c.JSON(200, nil)
 }
 
-// 只能一次修改一个
+// 根据videoName返回其favorName
+func findFavorName(videoName string, favorMap FavorMap) string {
+	for favorName, infoMap := range favorMap {
+		for k, _ := range infoMap {
+			if k == videoName {
+				return favorName
+			}
+		}
+	}
+	return ""
+}
+
+// 修改视频的Custom信息，只能一次修改一个
 func (v *VideoApi) UpdateCustomInfo(c *gin.Context) {
 	param := &UpdateCustomInfoParam{}
 	err := c.ShouldBindJSON(param)
@@ -128,6 +143,7 @@ func (v *VideoApi) UpdateCustomInfo(c *gin.Context) {
 	c.JSON(200, nil)
 }
 
+// 批量添加人物或标签信息
 func (v *VideoApi) BatchAddPeopleOrTag(c *gin.Context) {
 	param := &BatchAddPeopleOrTagParam{}
 	err := c.ShouldBindJSON(param)
@@ -154,22 +170,4 @@ func addPeopleOrTag(videoName string, param *BatchAddPeopleOrTagParam) {
 			}
 		}
 	}
-}
-
-// 将append列表中的元素加到origin列表中，且去重
-func ConcatListUnique(first []string, second []string) []string {
-	res := first
-	for _, s := range second {
-		unique := true
-		for _, s1 := range res {
-			if s == s1 {
-				unique = false
-				break
-			}
-		}
-		if unique {
-			res = append(res, s)
-		}
-	}
-	return res
 }

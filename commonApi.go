@@ -10,8 +10,8 @@ func (api *CommonApi) Refresh(c *gin.Context) {
 	c.JSON(200, favorMap)
 }
 
+// 返回对属性的统计，属性包括favor、people、tag
 func (api *CommonApi) ListProperty(c *gin.Context) {
-	// favor、people、tag
 	// 因为go不支持set，所以用map的key去重，value表示key出现的次数
 	favorCount := make(CountMap)
 	peopleCount := make(CountMap)
