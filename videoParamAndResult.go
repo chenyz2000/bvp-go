@@ -6,7 +6,9 @@ type ListParam struct {
 	Clarity   []string `form:"clarity"`
 	People    []string `form:"people"`
 	Tag       []string `form:"tag"`
-	// Sort
+	Sort      string   `form:"sort"` // -1更新时间倒序、-2收藏时间倒序、-3名称倒序、-4星级倒序，1~4为对应的顺序，默认为-1
+	Page      int      `form:"page"`
+	PageSize  int      `form:"page_size"`
 }
 
 type UpdateFavorParam struct {
@@ -23,4 +25,16 @@ type BatchAddPeopleOrTagParam struct {
 	VideoNameList []string `json:"video_name_list"`
 	PeopleList    []string `json:"people_list"`
 	TagList       []string `json:"tag_list"`
+}
+
+type ListResult struct {
+	Count int                  `json:"count"`
+	List  []*ListResultElement `json:"list"`
+}
+
+type ListResultElement struct {
+	FavorName string     `json:"favor_name"`
+	ItemName  string     `json:"item_name"`
+	PageName  string     `json:"page_name"`
+	VideoInfo *VideoInfo `json:"video_info"`
 }

@@ -95,6 +95,9 @@ func RefreshService() {
 					var customInfo *CustomInfo
 					key := itemName + videoNameConnector + pageName
 					customInfo = findCustomInfo(favorMap, key)
+					if customInfo.CollectionTime == 0 { // 如果收藏时间为空，则设置为视频更新时间
+						customInfo.CollectionTime = updateTime
+					}
 
 					// 组装完整Info对象
 					videoPage := &VideoInfo{

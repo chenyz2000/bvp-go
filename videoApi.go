@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-gonic/gin"
 	"os"
+	"sort"
 	"strings"
 )
 
@@ -16,12 +17,11 @@ func (v *VideoApi) List(c *gin.Context) {
 	if err != nil {
 		ReturnFalse(c, "参数绑定错误")
 	}
-	newFavorMap := make(FavorMap)
+	videoList := make([]*ListResultElement, 0)
 	for favorName, infoMap := range favorMap {
 		if !MatchStringList(favorName, param.Favor) {
 			continue
 		}
-		newInfoMap := make(InfoMap)
 
 		for name, videoInfo := range infoMap {
 			if !MatchString(videoInfo.Direction, param.Direction) {
@@ -37,17 +37,76 @@ func (v *VideoApi) List(c *gin.Context) {
 				continue
 			}
 			// 其他条件
-			// 筛完后，加入map
-			newInfoMap[name] = videoInfo
-		}
-
-		// TODO param添加sort，返回sort后的列表，而不是返回map
-		// 若某个收藏夹下筛选后不为空，则加入newFavorMap
-		if len(newInfoMap) > 0 {
-			newFavorMap[favorName] = newInfoMap
+			// 筛完后，加入resList
+			ele := &ListResultElement{
+				FavorName: favorName,
+				ItemName:  strings.Split(name, videoNameConnector)[0],
+				PageName:  strings.Split(name, videoNameConnector)[1],
+				VideoInfo: videoInfo,
+			}
+			videoList = append(videoList, ele)
 		}
 	}
-	c.JSON(200, newFavorMap)
+
+	// 根据sort排序
+	sortType := param.Sort
+	if !MatchStringList(sortType, []string{"-1", "-2", "-3", "-4", "p1", "p2", "p3", "p4"}) {
+		sortType = "-1"
+	}
+	sort.Slice(videoList, func(i, j int) bool {
+		info1 := videoList[i].VideoInfo
+		info2 := videoList[j].VideoInfo
+		switch sortType[1:2] {
+		case "1": // 更新时间
+			return info1.UpdateTime > info2.UpdateTime
+		case "2": // 收藏时间
+			if info1.CustomInfo.CollectionTime != info1.CustomInfo.CollectionTime {
+				return info1.CustomInfo.CollectionTime > info1.CustomInfo.CollectionTime
+			}
+			return info1.UpdateTime > info2.UpdateTime
+		//TODO 如果想要中文排序，好像需要将utf-8转换为GBK
+		//case "3": // 名称
+		//	if info1.Title != info2.Title {
+		//		return info1.Title > info2.Title
+		//	}
+		//	if info1.PageTitle != info2.PageTitle {
+		//		return info1.PageTitle > info2.PageTitle
+		//	}
+		//	return info1.UpdateTime > info2.UpdateTime
+		case "4": // 星级
+			if info1.CustomInfo.StarLevel != info1.CustomInfo.StarLevel {
+				return info1.CustomInfo.StarLevel > info1.CustomInfo.StarLevel
+			}
+			return info1.UpdateTime > info2.UpdateTime
+		}
+		return info1.UpdateTime > info2.UpdateTime
+	})
+	if sortType[0:1] == "p" { // 反转
+		sort.Slice(videoList, func(i, j int) bool {
+			return true
+		})
+	}
+
+	// 分页
+	count := len(videoList)
+	resList := videoList
+	if param.Page > 0 && param.PageSize > 0 {
+		left := (param.Page - 1) * param.PageSize
+		right := param.Page * param.PageSize
+		if left >= count {
+			resList = make([]*ListResultElement, 0)
+		} else {
+			if right >= count {
+				right = count
+			}
+			resList = videoList[left:right]
+		}
+	}
+
+	c.JSON(200, &ListResult{
+		Count: count,
+		List:  resList,
+	})
 }
 
 // 批量修改视频的收藏夹，视频原收藏夹不限，只能设置一个目的收藏夹
@@ -101,7 +160,6 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 			}
 		}
 		// 修改favorMap对象
-		// TODO 修改CustomInfo的FavorName字段
 		favorMap[param.NewFavorName][videoName] = favorMap[oldFavorName][videoName]
 		delete(favorMap[oldFavorName], videoName)
 	}
@@ -134,7 +192,10 @@ func (v *VideoApi) UpdateCustomInfo(c *gin.Context) {
 	for _, infoMap := range favorMap {
 		for k, videoInfo := range infoMap {
 			if k == param.VideoName {
+				// 保留原有的收藏时间
+				collectionTime := videoInfo.CustomInfo.CollectionTime
 				videoInfo.CustomInfo = param.CustomInfo
+				videoInfo.CustomInfo.CollectionTime = collectionTime
 				break
 			}
 		}

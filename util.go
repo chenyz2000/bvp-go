@@ -114,11 +114,11 @@ func MatchString(str_info string, str_param string) bool {
 }
 
 func HaveIntersection(list_info []string, list_param []string) bool {
-	if list_info == nil || len(list_info) == 0 { // info中list为空则必不匹配
-		return false
-	}
 	if list_param == nil || len(list_param) == 0 { // param中list为空则跳过筛选
 		return true
+	}
+	if list_info == nil || len(list_info) == 0 { // 若param中list不为空且info中list为空则必不匹配
+		return false
 	}
 	for _, v := range list_info {
 		if MatchStringList(v, list_param) {
