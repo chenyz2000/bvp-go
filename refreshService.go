@@ -53,6 +53,10 @@ func RefreshService() {
 					quality2 := getStringValue(entry, "quality_superscript")       // 高码率或空字符串
 					clarity := quality1 + quality2
 					updateTime := getInt64Value(entry, "time_update_stamp")
+					videoType := "single"
+					if len(pages) > 1 {
+						videoType = "multiple"
+					}
 
 					// 在page_data中的数据
 					var pageTitle, direction string
@@ -103,7 +107,7 @@ func RefreshService() {
 					videoPage := &VideoInfo{
 						Title:      getStringValue(entry, "title"),
 						PageTitle:  pageTitle,
-						Type:       "",
+						Type:       videoType,
 						OwnerId:    getInt64Value(entry, "owner_id"),
 						OwnerName:  getStringValue(entry, "owner_name"),
 						Cover:      cover,

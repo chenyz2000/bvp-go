@@ -109,6 +109,7 @@ func (v *VideoApi) List(c *gin.Context) {
 	})
 }
 
+// TODO 批量修改收藏夹、人物、标签时，若遇到multiple类型的视频，给出同item下视频未被框选的提示
 // 批量修改视频的收藏夹，视频原收藏夹不限，只能设置一个目的收藏夹
 func (v *VideoApi) UpdateFavor(c *gin.Context) {
 	param := &UpdateFavorParam{}
