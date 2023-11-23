@@ -3,6 +3,8 @@ package main
 import "github.com/gin-gonic/gin"
 
 func NewRouter() *gin.Engine {
+	// 运行前必须保证有info.json文件，空文件也可！
+
 	// 启动时应自动调用一次refreshService方法
 	RefreshService()
 

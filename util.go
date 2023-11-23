@@ -25,6 +25,7 @@ func Deserialize(filepath string) FavorMap {
 
 // 将favorMap序列化为string
 func Serialize(filepath string, favorMap FavorMap) {
+	// TODO 旧数据备份。存储info.json时，若内容不同，先将旧的文件存到backup文件夹中，命名为info_日期时分秒.json
 	bytes, _ := json.MarshalIndent(favorMap, "", "  ")
 	err := os.WriteFile(filepath, bytes, 0666)
 	if err != nil {
@@ -93,11 +94,23 @@ func getMapValue(mp map[string]interface{}, key string) map[string]interface{} {
 /*
 供List接口筛选时匹配使用
 */
+func MatchIntList(num int, num_list []int) bool {
+	if num_list == nil || len(num_list) == 0 {
+		return false
+	}
+	// go没有contain方法，需要手动遍历
+	for _, val := range num_list {
+		if num == val {
+			return true
+		}
+	}
+	return false
+}
+
 func MatchStringList(str_info string, list_param []string) bool {
 	if list_param == nil || len(list_param) == 0 {
 		return true
 	}
-	// go没有contain方法，需要手动遍历
 	for _, val := range list_param {
 		if str_info == val {
 			return true

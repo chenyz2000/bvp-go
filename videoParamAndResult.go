@@ -6,7 +6,7 @@ type ListParam struct {
 	Clarity   []string `form:"clarity"`
 	People    []string `form:"people"`
 	Tag       []string `form:"tag"`
-	Sort      string   `form:"sort"` // -1更新时间倒序、-2收藏时间倒序、-3名称倒序、-4星级倒序，1~4为对应的顺序，默认为-1
+	Sort      int      `form:"sort"` // -1更新时间倒序、-2收藏时间倒序、-3名称倒序、-4星级倒序，1~4为对应的顺序，默认为-1
 	Page      int      `form:"page"`
 	PageSize  int      `form:"page_size"`
 }

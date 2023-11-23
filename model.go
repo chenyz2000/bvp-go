@@ -7,7 +7,7 @@ type CustomInfo struct {
 	People      []string `json:"people"`
 	Tag         []string `json:"tag"`
 	Description string   `json:"description"`
-	StarLevel   int32    `json:"star_level"`
+	StarLevel   int32    `json:"star_level"` // 1仅收藏，2值得下载，3优质
 
 	/* 以下字段只支持自动修改 */
 	CollectionTime int64 `json:"colletion_time"` // 收藏时间

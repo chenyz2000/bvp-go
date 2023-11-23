@@ -50,22 +50,27 @@ func (v *VideoApi) List(c *gin.Context) {
 
 	// 根据sort排序
 	sortType := param.Sort
-	if !MatchStringList(sortType, []string{"-1", "-2", "-3", "-4", "p1", "p2", "p3", "p4"}) {
-		sortType = "-1"
+	if !MatchIntList(sortType, []int{-1, -2, -3, -4, 1, 2, 3, 4}) {
+		sortType = -1
+	}
+	desc := false
+	if sortType < 0 {
+		desc = true
+		sortType = -sortType
 	}
 	sort.Slice(videoList, func(i, j int) bool {
 		info1 := videoList[i].VideoInfo
 		info2 := videoList[j].VideoInfo
-		switch sortType[1:2] {
-		case "1": // 更新时间
+		switch sortType {
+		case 1: // 更新时间
 			return info1.UpdateTime > info2.UpdateTime
-		case "2": // 收藏时间
+		case 2: // 收藏时间
 			if info1.CustomInfo.CollectionTime != info1.CustomInfo.CollectionTime {
 				return info1.CustomInfo.CollectionTime > info1.CustomInfo.CollectionTime
 			}
 			return info1.UpdateTime > info2.UpdateTime
 		//TODO 如果想要中文排序，好像需要将utf-8转换为GBK
-		//case "3": // 名称
+		//case 3: // 名称
 		//	if info1.Title != info2.Title {
 		//		return info1.Title > info2.Title
 		//	}
@@ -73,7 +78,7 @@ func (v *VideoApi) List(c *gin.Context) {
 		//		return info1.PageTitle > info2.PageTitle
 		//	}
 		//	return info1.UpdateTime > info2.UpdateTime
-		case "4": // 星级
+		case 4: // 星级
 			if info1.CustomInfo.StarLevel != info1.CustomInfo.StarLevel {
 				return info1.CustomInfo.StarLevel > info1.CustomInfo.StarLevel
 			}
@@ -81,7 +86,7 @@ func (v *VideoApi) List(c *gin.Context) {
 		}
 		return info1.UpdateTime > info2.UpdateTime
 	})
-	if sortType[0:1] == "p" { // 反转
+	if !desc { // 顺序
 		sort.Slice(videoList, func(i, j int) bool {
 			return true
 		})
@@ -118,7 +123,7 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 		ReturnFalse(c, "参数绑定错误")
 		return
 	}
-	newFavorPath := rootPath + param.NewFavorName
+	newFavorPath := videoFolderPath + param.NewFavorName
 	for _, videoName := range param.VideoNameList {
 		oldFavorName := findFavorName(videoName, favorMap)
 		if oldFavorName == param.NewFavorName {
@@ -144,14 +149,14 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 			}
 		}
 		// 移动文件夹
-		oldPagePath := rootPath + oldFavorName + "/" + itemName + "/" + pageName
-		newPagePath := rootPath + param.NewFavorName + "/" + itemName + "/" + pageName
+		oldPagePath := videoFolderPath + oldFavorName + "/" + itemName + "/" + pageName
+		newPagePath := videoFolderPath + param.NewFavorName + "/" + itemName + "/" + pageName
 		err = os.Rename(oldPagePath, newPagePath)
 		if err != nil {
 			ReturnFalse(c, oldPagePath+"移动至"+newPagePath+"错误")
 			return
 		}
-		oldItemPath := rootPath + oldFavorName + "/" + itemName
+		oldItemPath := videoFolderPath + oldFavorName + "/" + itemName
 		dir, _ := os.ReadDir(oldItemPath)
 		if len(dir) == 0 { // 若旧item目录为空，则删除
 			err := os.Remove(oldItemPath)
@@ -165,7 +170,7 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 		delete(favorMap[oldFavorName], videoName)
 	}
 	// 写入文件
-	Serialize(jsonPath, favorMap)
+	Serialize(jsonFilePath, favorMap)
 	c.JSON(200, nil)
 }
 
@@ -201,7 +206,7 @@ func (v *VideoApi) UpdateCustomInfo(c *gin.Context) {
 			}
 		}
 	}
-	Serialize(jsonPath, favorMap)
+	Serialize(jsonFilePath, favorMap)
 	c.JSON(200, nil)
 }
 
@@ -217,7 +222,7 @@ func (v *VideoApi) BatchAddPeopleOrTag(c *gin.Context) {
 	for _, videoName := range param.VideoNameList {
 		addPeopleOrTag(videoName, param)
 	}
-	Serialize(jsonPath, favorMap)
+	Serialize(jsonFilePath, favorMap)
 	c.JSON(200, nil)
 }
 

@@ -1,9 +1,14 @@
 package main
 
 const (
-	rootPath           = "../video/"
-	jsonFileName       = "info.json"
-	jsonPath           = rootPath + jsonFileName
+	assetsFolderPath = "../assets/"
+	videoFolderPath  = assetsFolderPath + "video/"
+	jsonFolderPath   = assetsFolderPath + "data/"
+	coverFolderPath  = assetsFolderPath + "cover/"
+
+	jsonFileName = "info.json"
+	jsonFilePath = jsonFolderPath + jsonFileName
+
 	videoNameConnector = ";" // itemName和pageName之间的分隔符
 )
 
