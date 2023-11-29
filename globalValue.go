@@ -1,10 +1,11 @@
 package main
 
 const (
-	assetsFolderPath = "../assets/"
-	videoFolderPath  = assetsFolderPath + "video/"
-	jsonFolderPath   = assetsFolderPath + "data/"
-	coverFolderPath  = assetsFolderPath + "cover/"
+	assetsFolderPath     = "../assets/"
+	videoFolderPath      = assetsFolderPath + "video/"
+	jsonFolderPath       = assetsFolderPath + "data/"
+	jsonBackupFolderPath = jsonFolderPath + "backup/"
+	coverFolderPath      = assetsFolderPath + "cover/"
 
 	jsonFileName = "info.json"
 	jsonFilePath = jsonFolderPath + jsonFileName

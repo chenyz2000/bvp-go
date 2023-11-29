@@ -1,9 +1,18 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"github.com/gin-gonic/gin"
+	"os"
+)
 
 func NewRouter() *gin.Engine {
-	// 运行前必须保证有info.json文件，空文件也可！
+	// 自动创建必要的文件
+	if !PathExists(jsonFilePath) {
+		os.Create(jsonFilePath)
+	}
+	if !PathExists(jsonBackupFolderPath) {
+		os.Mkdir(jsonBackupFolderPath, 0777)
+	}
 
 	// 启动时应自动调用一次refreshService方法
 	RefreshService()

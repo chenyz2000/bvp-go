@@ -7,14 +7,16 @@ import (
 	"io"
 	"net/http"
 	"os"
+	"reflect"
+	"time"
 )
 
 /*
 	Deserialize和Serialize方法，用于json字符串和favorMap之间的转换
 */
 // 将字符串解析成favorMap
-func Deserialize(filepath string) FavorMap {
-	bytes, err := os.ReadFile(filepath)
+func Deserialize() FavorMap {
+	bytes, err := os.ReadFile(jsonFilePath)
 	if err != nil {
 		return nil
 	}
@@ -27,12 +29,21 @@ func Deserialize(filepath string) FavorMap {
 }
 
 // 将favorMap序列化为string
-func Serialize(filepath string, favorMap FavorMap) {
-	// TODO 旧数据备份。存储info.json时，若内容不同，先将旧的文件存到backup文件夹中，命名为info_日期时分秒.json
-	bytes, _ := json.MarshalIndent(favorMap, "", "  ")
-	err := os.WriteFile(filepath, bytes, 0666)
-	if err != nil {
-		return
+func Serialize(favorMap FavorMap) {
+	oldFavorMap := Deserialize()
+	equal := reflect.DeepEqual(oldFavorMap, favorMap)
+	if !equal {
+		// 将旧的info.json转移到backup文件夹中
+		backupPath := jsonBackupFolderPath + "info_" + time.Now().Format("20060102_150405") + ".json"
+		err := os.Rename(jsonFilePath, backupPath)
+		if err != nil {
+			return
+		}
+		bytes, _ := json.MarshalIndent(favorMap, "", "  ")
+		err = os.WriteFile(jsonFilePath, bytes, 0666)
+		if err != nil {
+			return
+		}
 	}
 }
 

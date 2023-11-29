@@ -8,7 +8,7 @@ import (
 )
 
 func RefreshService() {
-	favorMap = Deserialize(jsonFilePath) // 旧json文件
+	favorMap = Deserialize() // 旧json文件
 
 	var newFavorMap FavorMap
 	newFavorMap = make(FavorMap)
@@ -143,7 +143,7 @@ func RefreshService() {
 	favorMap = newFavorMap
 
 	// 写入info.json文件
-	Serialize(jsonFilePath, favorMap)
+	Serialize(favorMap)
 }
 
 // 根据videoName（item+page）获取其CustomInfo

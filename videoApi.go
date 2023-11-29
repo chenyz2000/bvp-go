@@ -170,7 +170,7 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 		delete(favorMap[oldFavorName], videoName)
 	}
 	// 写入文件
-	Serialize(jsonFilePath, favorMap)
+	Serialize(favorMap)
 	c.JSON(200, nil)
 }
 
@@ -206,7 +206,7 @@ func (v *VideoApi) UpdateCustomInfo(c *gin.Context) {
 			}
 		}
 	}
-	Serialize(jsonFilePath, favorMap)
+	Serialize(favorMap)
 	c.JSON(200, nil)
 }
 
@@ -222,7 +222,7 @@ func (v *VideoApi) BatchAddPeopleOrTag(c *gin.Context) {
 	for _, videoName := range param.VideoNameList {
 		addPeopleOrTag(videoName, param)
 	}
-	Serialize(jsonFilePath, favorMap)
+	Serialize(favorMap)
 	c.JSON(200, nil)
 }
 
