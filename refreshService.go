@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"os"
+	"path/filepath"
 	"strconv"
 )
 
@@ -43,10 +44,8 @@ func RefreshService() {
 				entryPath := pagePath + "/entry.json"
 				entry := ParseJSON(entryPath)
 
-				// TODO 先不管番剧了，先支持普通视频的xml
-				// TODO 待处理的字段
-				cover := ""
-				//
+				// 完全不管番剧了，因为番剧下载的实在太少了，只支持普通视频的xml
+				key := itemName + videoNameConnector + pageName
 
 				quality1 := getStringValue(entry, "quality_pithy_description") // 4K、1080P或其他
 				quality2 := getStringValue(entry, "quality_superscript")       // 高码率或空字符串
@@ -56,6 +55,19 @@ func RefreshService() {
 				if len(pages) > 1 {
 					videoType = "multiple"
 				}
+
+				// cover
+				// 之后可能需要根据web显示的要求调整这里的path，则需要根据旧cover值判断是否已下载
+				coverOnlineUrl := getStringValue(entry, "cover")
+				picturePath := coverFolderPath + key + filepath.Ext(coverOnlineUrl)
+				if !PathExists(picturePath) {
+					success := DownloadPicture(coverOnlineUrl, picturePath)
+					if !success {
+						picturePath = ""
+					}
+					// 下载会有一些耗时，之后在这里输出一下日志
+				}
+				cover := picturePath
 
 				// 在page_data中的数据
 				var pageTitle, direction string
@@ -96,7 +108,6 @@ func RefreshService() {
 
 				// CustomInfo不能清零了，要从旧的对象中读
 				var customInfo *CustomInfo
-				key := itemName + videoNameConnector + pageName
 				customInfo = findCustomInfo(favorMap, key)
 				if customInfo.CollectionTime == 0 { // 如果收藏时间为空，则设置为视频更新时间
 					customInfo.CollectionTime = updateTime

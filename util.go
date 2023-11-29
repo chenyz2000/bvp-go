@@ -2,7 +2,10 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"github.com/gin-gonic/gin"
+	"io"
+	"net/http"
 	"os"
 )
 
@@ -171,6 +174,32 @@ func ConcatListUnique(first []string, second []string) []string {
 		}
 	}
 	return res
+}
+
+func DownloadPicture(url string, filepath string) bool {
+	client := http.Client{}
+	response, err := client.Get(url)
+	// TODO 访问不到咋办
+	if err != nil {
+		fmt.Println("获取图片失败")
+		return false
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		fmt.Println("响应码错误")
+		return false
+	}
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("读取响应数据失败")
+		return false
+	}
+	err = os.WriteFile(filepath, data, 666)
+	if err != nil {
+		fmt.Println("写入文件失败")
+		return false
+	}
+	return true
 }
 
 func ReturnFalse(c *gin.Context, data string) {
