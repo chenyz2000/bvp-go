@@ -7,6 +7,7 @@ import (
 	"strconv"
 )
 
+// TODO 将video.m4s和audio.m4s的后缀进行重命名
 func RefreshService() {
 	favorMap = Deserialize() // 旧json文件
 
@@ -55,26 +56,37 @@ func RefreshService() {
 				if len(pages) > 1 {
 					videoType = "multiple"
 				}
+				// 音视频文件重命名
+				mediaFolderName := getStringValue(entry, "type_tag")
+				mediaFolderPath := pagePath + "/" + mediaFolderName + "/"
+				if PathExists(mediaFolderPath + "video.m4s") {
+					err = os.Rename(mediaFolderPath+"video.m4s", mediaFolderPath+"video.mp4")
+				}
+				if PathExists(mediaFolderPath + "audio.m4s") {
+					err = os.Rename(mediaFolderPath+"audio.m4s", mediaFolderPath+"audio.mp3")
+				}
 
 				// cover
 				// 之后可能需要根据web显示的要求调整这里的path，则需要根据旧cover值判断是否已下载
 				coverOnlineUrl := getStringValue(entry, "cover")
-				picturePath := coverFolderPath + key + filepath.Ext(coverOnlineUrl)
+				pictureName := key + filepath.Ext(coverOnlineUrl)
+				picturePath := coverFolderPath + pictureName
 				if !PathExists(picturePath) {
 					success := DownloadPicture(coverOnlineUrl, picturePath)
 					if !success {
-						picturePath = ""
+						pictureName = ""
 					}
 					// 下载会有一些耗时，之后在这里输出一下日志
 				}
-				cover := picturePath
+				cover := pictureName
 
 				// 在page_data中的数据
 				var pageTitle, direction string
-				var height, width int32
+				var pageOrder, height, width int32
 				pageData := getMapValue(entry, "page_data") // 子标签page_data转成的map
 				if pageData != nil {
 					pageTitle = getStringValue(pageData, "part")
+					pageOrder = getInt32Value(pageData, "page")
 					height = getInt32Value(pageData, "height")
 					width = getInt32Value(pageData, "width")
 					if height > 0 && width > 0 {
@@ -115,23 +127,25 @@ func RefreshService() {
 
 				// 组装完整Info对象
 				videoPage := &VideoInfo{
-					Title:      getStringValue(entry, "title"),
-					PageTitle:  pageTitle,
-					Type:       videoType,
-					OwnerId:    getInt64Value(entry, "owner_id"),
-					OwnerName:  getStringValue(entry, "owner_name"),
-					Cover:      cover,
-					UpdateTime: updateTime,
-					Direction:  direction,
-					Size:       getInt64Value(entry, "total_bytes"),
-					Duration:   getInt64Value(entry, "total_time_milli"),
-					Clarity:    clarity,
-					Height:     height,
-					Width:      width,
-					Fps:        fps,
-					Bvid:       getStringValue(entry, "bvid"),
-					Avid:       getInt64Value(entry, "avid"),
-					CustomInfo: customInfo,
+					Title:           getStringValue(entry, "title"),
+					PageTitle:       pageTitle,
+					PageOrder:       pageOrder,
+					Type:            videoType,
+					OwnerId:         getInt64Value(entry, "owner_id"),
+					OwnerName:       getStringValue(entry, "owner_name"),
+					MediaFolderName: mediaFolderName,
+					Cover:           cover,
+					UpdateTime:      updateTime,
+					Direction:       direction,
+					Size:            getInt64Value(entry, "total_bytes"),
+					Duration:        getInt64Value(entry, "total_time_milli"),
+					Clarity:         clarity,
+					Height:          height,
+					Width:           width,
+					Fps:             fps,
+					Bvid:            getStringValue(entry, "bvid"),
+					Avid:            getInt64Value(entry, "avid"),
+					CustomInfo:      customInfo,
 				}
 
 				infoMap[key] = videoPage

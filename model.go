@@ -14,12 +14,14 @@ type CustomInfo struct {
 }
 
 type VideoInfo struct { // 视频的每一个分片对应一个VideoInfo
-	Title     string `json:"title"`
-	PageTitle string `json:"page_title"`
-	Type      string `json:"type"` // single、multiple、TVseries
-	OwnerId   int64  `json:"owner_id"`
-	OwnerName string `json:"owner_name"`
-	Cover     string `json:"cover"`
+	Title           string `json:"title"`
+	PageTitle       string `json:"page_title"`
+	PageOrder       int32  `json:"page_order"` // 当前分P的序号
+	Type            string `json:"type"`       // single、multiple、TVseries
+	OwnerId         int64  `json:"owner_id"`
+	OwnerName       string `json:"owner_name"`
+	MediaFolderName string `json:"media_folder_name"` // 媒体文件夹的名称，如16、112
+	Cover           string `json:"cover"`
 	//DownloadTime int64       `json:"download_time"`
 	UpdateTime int64       `json:"update_time"`
 	Direction  string      `json:"direction"`

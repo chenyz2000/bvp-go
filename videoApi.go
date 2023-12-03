@@ -62,6 +62,7 @@ func (v *VideoApi) List(c *gin.Context) {
 		info1 := videoList[i].VideoInfo
 		info2 := videoList[j].VideoInfo
 		switch sortType {
+		// TODO 对pageOrder进行排序
 		case 1: // 更新时间
 			return info1.UpdateTime > info2.UpdateTime
 		case 2: // 收藏时间

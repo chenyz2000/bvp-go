@@ -1,6 +1,7 @@
 package main
 
 import (
+	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
 	"os"
 )
@@ -18,6 +19,7 @@ func NewRouter() *gin.Engine {
 	RefreshService()
 
 	router := gin.Default()
+	router.Use(cors.Default())
 	apiGroup := router.Group("/api")
 	commonApi := &CommonApi{}
 	apiGroup.GET("/refresh", commonApi.Refresh)
