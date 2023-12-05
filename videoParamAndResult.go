@@ -1,14 +1,14 @@
 package main
 
 type ListParam struct {
-	Favor     []string `form:"favor"`     // 多选
-	Direction string   `form:"direction"` // 单选
-	Clarity   []string `form:"clarity"`
-	People    []string `form:"people"`
-	Tag       []string `form:"tag"`
-	Sort      int      `form:"sort"` // -1更新时间倒序、-2收藏时间倒序、-3名称倒序、-4星级倒序，1~4为对应的顺序，默认为-1
-	Page      int      `form:"page"`
-	PageSize  int      `form:"page_size"`
+	Favor     string `form:"favor"` // 筛选条件都是多选，以逗号分割
+	Direction string `form:"direction"`
+	Clarity   string `form:"clarity"`
+	People    string `form:"people"`
+	Tag       string `form:"tag"`
+	Sort      int    `form:"sort"` // -1更新时间倒序、-2收藏时间倒序、-3名称倒序、-4星级倒序，1~4为对应的顺序，默认为-1
+	Page      int    `form:"page"`
+	PageSize  int    `form:"page_size"`
 }
 
 type UpdateFavorParam struct {

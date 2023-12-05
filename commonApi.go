@@ -29,6 +29,7 @@ func (api *CommonApi) ListProperty(c *gin.Context) {
 			}
 		}
 	}
+	// TODO 添加Clarity、Direction的信息
 	res := &Property{
 		Favor:  favorCount,
 		People: peopleCount,

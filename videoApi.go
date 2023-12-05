@@ -29,7 +29,7 @@ func (v *VideoApi) List(c *gin.Context) {
 		}
 
 		for name, videoInfo := range infoMap {
-			if !MatchString(videoInfo.Direction, param.Direction) {
+			if !MatchStringList(videoInfo.Direction, param.Direction) {
 				continue
 			}
 			if !MatchStringList(videoInfo.Clarity, param.Clarity) {
