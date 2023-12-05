@@ -7,13 +7,13 @@ import (
 	"strconv"
 )
 
-// TODO 将video.m4s和audio.m4s的后缀进行重命名
 func RefreshService() {
 	favorMap = Deserialize() // 旧json文件
 
 	var newFavorMap FavorMap
 	newFavorMap = make(FavorMap)
 
+	// TODO 删除空文件夹
 	favors, err := os.ReadDir(videoFolderPath)
 	if err != nil {
 		return
@@ -56,7 +56,7 @@ func RefreshService() {
 				if len(pages) > 1 {
 					videoType = "multiple"
 				}
-				// 音视频文件重命名
+				// 对音视频文件的后缀进行重命名
 				mediaFolderName := getStringValue(entry, "type_tag")
 				mediaFolderPath := pagePath + "/" + mediaFolderName + "/"
 				if PathExists(mediaFolderPath + "video.m4s") {

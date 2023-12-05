@@ -172,6 +172,7 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 		if err != nil {
 			ReturnFalse(c, "删除"+oldPagePath+"错误")
 		}
+		// TODO 若旧收藏文件夹空了，则将其也删除
 
 		oldItemPath := videoFolderPath + oldFavorName + "/" + itemName
 		dir, _ := os.ReadDir(oldItemPath)
