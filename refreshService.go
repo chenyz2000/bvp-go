@@ -56,15 +56,6 @@ func RefreshService() {
 				if len(pages) > 1 {
 					videoType = "multiple"
 				}
-				// 对音视频文件的后缀进行重命名
-				mediaFolderName := getStringValue(entry, "type_tag")
-				mediaFolderPath := pagePath + "/" + mediaFolderName + "/"
-				if PathExists(mediaFolderPath + "video.m4s") {
-					err = os.Rename(mediaFolderPath+"video.m4s", mediaFolderPath+"video.mp4")
-				}
-				if PathExists(mediaFolderPath + "audio.m4s") {
-					err = os.Rename(mediaFolderPath+"audio.m4s", mediaFolderPath+"audio.mp3")
-				}
 
 				// cover
 				// 之后可能需要根据web显示的要求调整这里的path，则需要根据旧cover值判断是否已下载
@@ -130,10 +121,11 @@ func RefreshService() {
 					Title:           getStringValue(entry, "title"),
 					PageTitle:       pageTitle,
 					PageOrder:       pageOrder,
+					Transcoded:      PathExists(pagePath + "/output.mp4"),
 					Type:            videoType,
 					OwnerId:         getInt64Value(entry, "owner_id"),
 					OwnerName:       getStringValue(entry, "owner_name"),
-					MediaFolderName: mediaFolderName,
+					MediaFolderName: getStringValue(entry, "type_tag"),
 					Cover:           cover,
 					UpdateTime:      updateTime,
 					Direction:       direction,

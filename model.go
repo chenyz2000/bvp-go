@@ -17,6 +17,7 @@ type VideoInfo struct { // 视频的每一个分片对应一个VideoInfo
 	Title           string `json:"title"`
 	PageTitle       string `json:"page_title"`
 	PageOrder       int32  `json:"page_order"` // 当前分P的序号
+	Transcoded      bool   `json:"transcoded"` // 已转码
 	Type            string `json:"type"`       // single、multiple、TVseries
 	OwnerId         int64  `json:"owner_id"`
 	OwnerName       string `json:"owner_name"`
