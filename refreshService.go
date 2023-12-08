@@ -13,7 +13,6 @@ func RefreshService() {
 	var newFavorMap FavorMap
 	newFavorMap = make(FavorMap)
 
-	// TODO 删除空文件夹
 	favors, err := os.ReadDir(videoFolderPath)
 	if err != nil {
 		return
@@ -38,7 +37,6 @@ func RefreshService() {
 			if err != nil {
 				return
 			}
-			// fmt.Println(len(pages))		// 分片数量
 			for _, page := range pages {
 				pageName := page.Name() // 分片，一般以c_开头
 				pagePath := itemPath + "/" + pageName
@@ -95,6 +93,10 @@ func RefreshService() {
 				if err != nil {
 					return
 				}
+				if len(tmps) == 0 {
+					os.Remove(pagePath)
+					continue
+				}
 				for _, tmp := range tmps {
 					if tmp.IsDir() {
 						indexPath := pagePath + "/" + tmp.Name() + "/index.json"
@@ -142,7 +144,18 @@ func RefreshService() {
 
 				infoMap[key] = videoPage
 			}
+			pages, err = os.ReadDir(itemPath)
+			if len(pages) == 0 {
+				os.Remove(itemPath)
+				continue
+			}
 		}
+		items, err = os.ReadDir(favorPath)
+		if len(items) == 0 {
+			os.Remove(favorPath)
+			continue
+		}
+
 		newFavorMap[favorName] = infoMap
 	}
 
