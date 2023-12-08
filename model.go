@@ -26,9 +26,9 @@ type VideoInfo struct { // 视频的每一个分片对应一个VideoInfo
 	//DownloadTime int64       `json:"download_time"`
 	UpdateTime int64       `json:"update_time"`
 	Direction  string      `json:"direction"`
-	Size       int64       `json:"size"`    // 大小，单位字节
-	Duration   int64       `json:"length"`  // 时长，单位毫秒
-	Clarity    string      `json:"quality"` // 视频清晰度，如4K
+	Size       int64       `json:"size"`     // 大小，单位字节
+	Duration   int64       `json:"duration"` // 时长，单位毫秒
+	Clarity    string      `json:"clarity"`  // 视频清晰度，如4K
 	Height     int32       `json:"height"`
 	Width      int32       `json:"width"`
 	Fps        float64     `json:"fps"`
@@ -56,9 +56,11 @@ type Index_json struct {
 propertyList接口使用
 */
 type Property struct {
-	Favor  CountMap `json:"favor"`
-	People CountMap `json:"people"`
-	Tag    CountMap `json:"tag"`
+	Favor     CountMap `json:"favor"`
+	People    CountMap `json:"people"`
+	Tag       CountMap `json:"tag"`
+	Clarity   CountMap `json:"clarity"` // 视频清晰度，如4K
+	Direction CountMap `json:"direction"`
 }
 
 type CountMap map[string]int

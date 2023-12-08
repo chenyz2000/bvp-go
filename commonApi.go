@@ -16,10 +16,14 @@ func (api *CommonApi) ListProperty(c *gin.Context) {
 	favorCount := make(CountMap)
 	peopleCount := make(CountMap)
 	tagCount := make(CountMap)
+	clarityCount := make(CountMap)
+	directionCount := make(CountMap)
 
 	for favorName, infoMap := range favorMap {
 		favorCount[favorName] = len(infoMap) // favor
 		for _, videoInfo := range infoMap {
+			clarityCount[videoInfo.Clarity]++     // clarity
+			directionCount[videoInfo.Direction]++ // direction
 			customInfo := videoInfo.CustomInfo
 			for _, v := range customInfo.People { //people
 				peopleCount[v]++
@@ -29,11 +33,12 @@ func (api *CommonApi) ListProperty(c *gin.Context) {
 			}
 		}
 	}
-	// TODO 添加Clarity、Direction的信息
 	res := &Property{
-		Favor:  favorCount,
-		People: peopleCount,
-		Tag:    tagCount,
+		Favor:     favorCount,
+		People:    peopleCount,
+		Tag:       tagCount,
+		Clarity:   clarityCount,
+		Direction: directionCount,
 	}
 	c.JSON(200, *res)
 }
