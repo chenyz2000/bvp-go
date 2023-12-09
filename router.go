@@ -21,7 +21,8 @@ func NewRouter() *gin.Engine {
 		os.Mkdir(coverFolderPath, 0777)
 	}
 
-	// 启动时应自动调用一次refreshService方法
+	// 启动时应自动调用一次Transcode和refreshService方法
+	go Transcode()
 	RefreshService()
 
 	router := gin.Default()
