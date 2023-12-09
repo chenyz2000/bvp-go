@@ -14,6 +14,12 @@ func NewRouter() *gin.Engine {
 	if !PathExists(jsonBackupFolderPath) {
 		os.Mkdir(jsonBackupFolderPath, 0777)
 	}
+	if !PathExists(webFolderPath) {
+		os.Mkdir(webFolderPath, 0777)
+	}
+	if !PathExists(coverFolderPath) {
+		os.Mkdir(coverFolderPath, 0777)
+	}
 
 	// 启动时应自动调用一次refreshService方法
 	RefreshService()
