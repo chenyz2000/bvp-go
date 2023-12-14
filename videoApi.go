@@ -3,6 +3,7 @@ package main
 import (
 	"crypto/md5"
 	"encoding/hex"
+	"encoding/json"
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"io"
@@ -29,6 +30,9 @@ func (v *VideoApi) List(c *gin.Context) {
 		}
 
 		for name, videoInfo := range infoMap {
+			if !matchKeywords(videoInfo, param.Keywords) {
+				continue
+			}
 			if !MatchStringList(videoInfo.Direction, param.Direction) {
 				continue
 			}
@@ -118,6 +122,17 @@ func (v *VideoApi) List(c *gin.Context) {
 		Count: count,
 		List:  resList,
 	})
+}
+
+func matchKeywords(info *VideoInfo, keywords string) bool {
+	bytes, _ := json.MarshalIndent(info, "", "  ")
+	s := string(bytes)
+	for _, keyword := range strings.Split(keywords, ",") {
+		if !strings.Contains(s, keyword) {
+			return false
+		}
+	}
+	return true
 }
 
 // TODO 批量修改收藏夹、人物、标签时，若遇到multiple类型的视频，给出同item下视频未被框选的提示

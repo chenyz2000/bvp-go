@@ -1,7 +1,8 @@
 package main
 
 type ListParam struct {
-	Favor     string `form:"favor"` // 筛选条件都是多选，以逗号分割
+	Keywords  string `form:"keywords"` // 筛选条件都是多选，以逗号分割
+	Favor     string `form:"favor"`
 	Direction string `form:"direction"`
 	Clarity   string `form:"clarity"`
 	People    string `form:"people"`
