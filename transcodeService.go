@@ -8,6 +8,7 @@ import (
 )
 
 func Transcode() {
+	fmt.Println("start transcode")
 	cmd := exec.Command("ffmpeg", "-help")
 	_, err := cmd.CombinedOutput()
 	if err != nil {
@@ -16,63 +17,60 @@ func Transcode() {
 		//ReturnFalse(c, "don't have ffmpeg")
 	}
 
-	finished := false
-	for finished == false {
-		favors, err := os.ReadDir(videoFolderPath)
+	favors, err := os.ReadDir(videoFolderPath)
+	if err != nil {
+		return
+	}
+	for _, favor := range favors {
+		if favor.Name() == "跳过转码" {
+			continue
+		}
+		favorPath := videoFolderPath + favor.Name() // 收藏文件夹
+
+		items, err := os.ReadDir(favorPath)
 		if err != nil {
 			return
 		}
-		for _, favor := range favors {
-			if favor.Name() == "跳过转码" {
-				continue
-			}
-			favorPath := videoFolderPath + favor.Name() // 收藏文件夹
+		for _, item := range items {
+			itemPath := favorPath + "/" + item.Name() // 视频条目
 
-			items, err := os.ReadDir(favorPath)
+			pages, err := os.ReadDir(itemPath)
 			if err != nil {
 				return
 			}
-			for _, item := range items {
-				itemPath := favorPath + "/" + item.Name() // 视频条目
+			for _, page := range pages {
+				pagePath := itemPath + "/" + page.Name() // 分片，一般以c_开头
+				if PathExists(pagePath + "/out.mp4") {   // 已经转码过
+					continue
+				}
 
-				pages, err := os.ReadDir(itemPath)
+				tmps, err := os.ReadDir(pagePath)
 				if err != nil {
 					return
 				}
-				for _, page := range pages {
-					pagePath := itemPath + "/" + page.Name() // 分片，一般以c_开头
-					if PathExists(pagePath + "/out.mp4") {   // 已经转码过
+				for _, tmp := range tmps {
+					if !tmp.IsDir() {
+						continue
+					}
+					mediaFolderName := tmp.Name()                      // 媒体文件夹
+					if !PathExists(pagePath + "/" + mediaFolderName) { // 防止在for循环中移动文件，导致旧路径下文件不存在
+						continue
+					}
+					//如果文件大且未转码，则转移到“跳过转码”文件夹
+					info, _ := os.Stat(pagePath + "/" + mediaFolderName + "/video.m4s")
+					if info.Size() > 50*1024*1024 && !PathExists(pagePath+"/out.mp4") {
+						// TODO 移动视频
 						continue
 					}
 
-					tmps, err := os.ReadDir(pagePath)
-					if err != nil {
-						return
-					}
-					for _, tmp := range tmps {
-						if !tmp.IsDir() {
-							continue
-						}
-						mediaFolderName := tmp.Name()                      // 媒体文件夹
-						if !PathExists(pagePath + "/" + mediaFolderName) { // 防止在for循环中移动文件，导致旧路径下文件不存在
-							continue
-						}
-						//如果文件大且未转码，则转移到“跳过转码”文件夹
-						info, _ := os.Stat(pagePath + "/" + mediaFolderName + "/video.m4s")
-						if info.Size() > 50*1024*1024 && !PathExists(pagePath+"/out.mp4") {
-							// TODO 移动视频
-							continue
-						}
-
-						transcodeOne(pagePath, mediaFolderName)
-						continue
-					}
+					transcodeOne(pagePath, mediaFolderName)
 				}
 			}
 		}
-
-		finished = true // 所有文件都遍历完，设为true
 	}
+
+	<-ch // 从channel消费，允许其他线程访问
+	fmt.Println("finish transcode")
 }
 
 func transcodeOne(pagePath string, mediaFolderName string) {

@@ -3,33 +3,15 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
-	"os"
 )
 
 func NewRouter() *gin.Engine {
-	// 自动创建必要的文件
-	if !PathExists(jsonFilePath) {
-		os.Create(jsonFilePath)
-	}
-	if !PathExists(jsonBackupFolderPath) {
-		os.Mkdir(jsonBackupFolderPath, 0777)
-	}
-	if !PathExists(webFolderPath) {
-		os.Mkdir(webFolderPath, 0777)
-	}
-	if !PathExists(coverFolderPath) {
-		os.Mkdir(coverFolderPath, 0777)
-	}
-
-	// 启动时应自动调用一次Transcode和refreshService方法
-	go Transcode()
-	RefreshService()
-
 	router := gin.Default()
 	router.Use(cors.Default())
 	apiGroup := router.Group("/api")
 	commonApi := &CommonApi{}
 	apiGroup.GET("/refresh", commonApi.Refresh)
+	apiGroup.GET("/transcode", commonApi.Transcode)
 	apiGroup.GET("/get-property", commonApi.ListProperty)
 
 	videoGroup := apiGroup.Group("/video")

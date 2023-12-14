@@ -13,6 +13,8 @@ const (
 	coverFolderPath = webFolderPath + "public/cover/"
 
 	videoNameConnector = ";" // itemName和pageName之间的分隔符
+
+	CHANNEL_CAPACITY = 1
 )
 
 var favorMap FavorMap // 全局维护的对象

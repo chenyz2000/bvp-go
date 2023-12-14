@@ -10,6 +10,16 @@ func (api *CommonApi) Refresh(c *gin.Context) {
 	c.JSON(200, favorMap)
 }
 
+func (api *CommonApi) Transcode(c *gin.Context) {
+	if len(ch) == CHANNEL_CAPACITY {
+		c.JSON(200, "already in transcode")
+		return
+	}
+	ch <- 1 // 向channel发送，如果能发送则可以调用
+	go Transcode()
+	c.JSON(200, "start transcode")
+}
+
 // 返回对属性的统计，属性包括favor、people、tag
 func (api *CommonApi) ListProperty(c *gin.Context) {
 	// 因为go不支持set，所以用map的key去重，value表示key出现的次数
