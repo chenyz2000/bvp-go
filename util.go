@@ -165,16 +165,22 @@ func PathExists(path string) bool {
 
 // 合并两个列表，且去重
 func ConcatListUnique(first []string, second []string) []string {
-	res := first
+	lst := first
 	for _, s := range second {
 		unique := true
-		for _, s1 := range res {
+		for _, s1 := range lst {
 			if s == s1 {
 				unique = false
 				break
 			}
 		}
 		if unique {
+			lst = append(lst, s)
+		}
+	}
+	res := make([]string, 0)
+	for _, s := range lst {
+		if strings.TrimSpace(s) != "" {
 			res = append(res, s)
 		}
 	}

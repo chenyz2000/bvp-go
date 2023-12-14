@@ -129,6 +129,9 @@ func (v *VideoApi) UpdateFavor(c *gin.Context) {
 		ReturnFalse(c, "参数绑定错误")
 		return
 	}
+	if strings.TrimSpace(param.NewFavorName) == "" {
+		ReturnFalse(c, "收藏夹名称不能为空")
+	}
 	newFavorPath := videoFolderPath + param.NewFavorName
 	for _, videoName := range param.VideoNameList {
 		oldFavorName := findFavorName(videoName, favorMap)
