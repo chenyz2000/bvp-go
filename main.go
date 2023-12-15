@@ -2,7 +2,7 @@ package main
 
 import "os"
 
-var ch = make(chan int, CHANNEL_CAPACITY)
+//var ch = make(chan int, CHANNEL_CAPACITY)
 
 func main() {
 	// 自动创建必要的文件
@@ -20,8 +20,8 @@ func main() {
 	}
 
 	// 启动时应自动调用一次Transcode和refreshService方法
-	ch <- 1 // 向channel发送，如果能发送则可以调用
-	go Transcode()
+	//ch <- 1 // 向channel发送，如果能发送则可以调用
+	//go Transcode()
 	RefreshService()
 
 	router := NewRouter()

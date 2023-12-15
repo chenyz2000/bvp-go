@@ -69,7 +69,7 @@ func Transcode() {
 		}
 	}
 
-	<-ch // 从channel消费，允许其他线程访问
+	//<-ch // 从channel消费，允许其他线程访问
 	fmt.Println("finish transcode")
 }
 
