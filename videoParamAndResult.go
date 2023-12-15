@@ -2,6 +2,7 @@ package main
 
 type ListParam struct {
 	Keywords  string `form:"keywords"` // 筛选条件都是多选，以逗号分割
+	Transcode string `form:"transcode"`
 	Favor     string `form:"favor"`
 	Direction string `form:"direction"`
 	Clarity   string `form:"clarity"`

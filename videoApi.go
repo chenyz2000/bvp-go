@@ -33,7 +33,11 @@ func (v *VideoApi) List(c *gin.Context) {
 			if !matchKeywords(videoInfo, param.Keywords) {
 				continue
 			}
-			if !MatchStringList(videoInfo.Direction, param.Direction) {
+			transcode := "未转码"
+			if videoInfo.Transcoded {
+				transcode = "已转码"
+			}
+			if !MatchStringList(transcode, param.Transcode) {
 				continue
 			}
 			if !MatchStringList(videoInfo.Clarity, param.Clarity) {
@@ -127,12 +131,19 @@ func (v *VideoApi) List(c *gin.Context) {
 func matchKeywords(info *VideoInfo, keywords string) bool {
 	bytes, _ := json.MarshalIndent(info, "", "  ")
 	s := string(bytes)
-	for _, keyword := range strings.Split(keywords, ",") {
-		if !strings.Contains(s, keyword) {
-			return false
+	for _, or := range strings.Split(keywords, "|") {
+		match := true
+		for _, and := range strings.Split(or, ",") {
+			if !strings.Contains(s, and) {
+				match = false
+				break
+			}
+		}
+		if match {
+			return true
 		}
 	}
-	return true
+	return false
 }
 
 // TODO 批量修改收藏夹、人物、标签时，若遇到multiple类型的视频，给出同item下视频未被框选的提示

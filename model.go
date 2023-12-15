@@ -61,6 +61,7 @@ type Property struct {
 	Tag       CountMap `json:"tag"`
 	Clarity   CountMap `json:"clarity"` // 视频清晰度，如4K
 	Direction CountMap `json:"direction"`
+	Transcode CountMap `json:"transcode"`
 }
 
 type CountMap map[string]int
