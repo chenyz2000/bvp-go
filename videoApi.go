@@ -33,21 +33,36 @@ func (v *VideoApi) List(c *gin.Context) {
 			if !matchKeywords(videoInfo, param.Keywords) {
 				continue
 			}
-			transcode := "未转码"
-			if videoInfo.Transcoded {
-				transcode = "已转码"
-			}
-			if !MatchStringList(transcode, param.Transcode) {
-				continue
-			}
-			if !MatchStringList(videoInfo.Clarity, param.Clarity) {
+			if param.Direction != "" && videoInfo.Direction != param.Direction {
 				continue
 			}
 			if !HaveIntersection(videoInfo.CustomInfo.People, param.People) {
 				continue
 			}
+			// 以下为不重要的选项
 			if !HaveIntersection(videoInfo.CustomInfo.Tag, param.Tag) {
 				continue
+			}
+			if !MatchStringList(videoInfo.Clarity, param.Clarity) {
+				continue
+			}
+			if param.PeopleMarked != "" {
+				peopleMarked := "未标注"
+				if len(videoInfo.CustomInfo.People) > 0 {
+					peopleMarked = "已标注"
+				}
+				if peopleMarked != param.PeopleMarked {
+					continue
+				}
+			}
+			if param.Transcode != "" {
+				transcode := "未转码"
+				if videoInfo.Transcoded {
+					transcode = "已转码"
+				}
+				if transcode != param.Transcode {
+					continue
+				}
 			}
 			// 其他条件
 			// 筛完后，加入resList

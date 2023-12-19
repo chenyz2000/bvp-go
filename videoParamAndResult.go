@@ -1,16 +1,19 @@
 package main
 
 type ListParam struct {
-	Keywords  string `form:"keywords"` // 筛选条件都是多选，以逗号分割
-	Transcode string `form:"transcode"`
-	Favor     string `form:"favor"`
-	Direction string `form:"direction"`
-	Clarity   string `form:"clarity"`
-	People    string `form:"people"`
-	Tag       string `form:"tag"`
-	Sort      int    `form:"sort"` // -1更新时间倒序、-2收藏时间倒序、-3名称倒序、-4星级倒序，1~4为对应的顺序，默认为-1
-	Page      int    `form:"page"`
-	PageSize  int    `form:"page_size"`
+	Keywords  string `form:"keywords"`  // 逗号、竖划线分割
+	Favor     string `form:"favor"`     // 多选，逗号分割
+	Direction string `form:"direction"` // 单选。取值：horizontal，vertical
+	People    string `form:"people"`    // 多选，逗号分割
+	// 第二行
+	Tag          string `form:"tag"`           // 多选，逗号分割
+	Clarity      string `form:"clarity"`       // 多选，逗号分割
+	PeopleMarked string `form:"people_marked"` // 含义：已标注people。单选。取值：已标注，未标注
+	Transcode    string `form:"transcode"`     // 单选。取值：已转码，未转码
+	// 其他
+	Sort     int `form:"sort"` // -1更新时间倒序、-2收藏时间倒序、-3名称倒序、-4星级倒序，1~4为对应的顺序，默认为-1
+	Page     int `form:"page"`
+	PageSize int `form:"page_size"`
 }
 
 type UpdateFavorParam struct {
