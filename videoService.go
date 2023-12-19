@@ -1,13 +1,9 @@
 package main
 
 import (
-	"crypto/md5"
-	"encoding/hex"
 	"encoding/json"
 	"fmt"
-	"io"
 	"os"
-	"os/exec"
 	"sort"
 	"strings"
 )
@@ -167,7 +163,6 @@ func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
 		if oldFavorName == param.NewFavorName {
 			continue
 		}
-		mediaFolderName := favorMap[oldFavorName][videoName].MediaFolderName
 
 		tmp := strings.Split(videoName, videoNameConnector)
 		itemName := tmp[0]
@@ -188,26 +183,14 @@ func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
 				return err
 			}
 		}
-		// 移动文件夹，直接移动不行，采用复制后删除旧的
+		// 移动文件夹
 		oldPagePath := videoFolderPath + oldFavorName + "/" + itemName + "/" + pageName
 		newPagePath := videoFolderPath + param.NewFavorName + "/" + itemName + "/" + pageName
-		cmd := exec.Command("cp", "-r", oldPagePath, newPagePath)
-		out, err := cmd.CombinedOutput()
-		fmt.Println(out)
+		err := os.Rename(oldPagePath, newPagePath)
 		if err != nil {
-			fmt.Println(oldPagePath + "复制至" + newPagePath + "错误")
+			fmt.Println(oldPagePath + "移动至" + newPagePath + "错误")
 			return err
 		}
-		if !compareMD5(oldPagePath, newPagePath, mediaFolderName) {
-			fmt.Println(oldPagePath + "和" + newPagePath + "MD5值不同")
-		}
-		err = os.RemoveAll(oldPagePath)
-		if err != nil {
-			fmt.Println("删除" + oldPagePath + "错误")
-			return err
-		}
-		// 若旧收藏文件夹空了，此处不删除，在refresh时删除
-
 		oldItemPath := videoFolderPath + oldFavorName + "/" + itemName
 		dir, _ := os.ReadDir(oldItemPath)
 		if len(dir) == 0 { // 若旧item目录为空，则删除
@@ -277,31 +260,4 @@ func addPeopleOrTag(videoName string, param *BatchAddPeopleOrTagParam) {
 			}
 		}
 	}
-}
-
-func compareMD5(oldPath string, newPath string, mediaFolderName string) bool {
-	if getFileMd5(oldPath+"/entry.json") != getFileMd5(newPath+"/entry.json") {
-		return false
-	}
-	if getFileMd5(oldPath+"/"+mediaFolderName+"/audio.mp3") !=
-		getFileMd5(newPath+"/"+mediaFolderName+"/audio.mp3") {
-		return false
-	}
-	if getFileMd5(oldPath+"/"+mediaFolderName+"/video.mp4") !=
-		getFileMd5(newPath+"/"+mediaFolderName+"/video.mp4") {
-		return false
-	}
-	return true
-}
-
-func getFileMd5(filePath string) string {
-	pFile, err := os.Open(filePath)
-	if err != nil {
-		fmt.Errorf("打开文件失败，filename=%v, err=%v", filePath, err)
-		return ""
-	}
-	defer pFile.Close()
-	md5h := md5.New()
-	io.Copy(md5h, pFile)
-	return hex.EncodeToString(md5h.Sum(nil))
 }
