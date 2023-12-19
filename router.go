@@ -16,11 +16,11 @@ func NewRouter() *gin.Engine {
 	apiGroup := router.Group("/api")
 	commonApi := &CommonApi{}
 	apiGroup.GET("/refresh", commonApi.Refresh)
-	//apiGroup.GET("/transcode", commonApi.Transcode)
 	apiGroup.GET("/get-property", commonApi.ListProperty)
+	//apiGroup.GET("/transcode", commonApi.Transcode)
 
 	videoGroup := apiGroup.Group("/video")
-	videoApi := &VideoApi{}
+	videoApi := NewVideoApi()
 	videoGroup.GET("/list", videoApi.List)
 	videoGroup.PUT("/update-favor", videoApi.UpdateFavor)
 	videoGroup.PUT("/update-custom", videoApi.UpdateCustomInfo)

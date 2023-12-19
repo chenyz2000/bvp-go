@@ -3,7 +3,6 @@ package main
 import (
 	"encoding/json"
 	"fmt"
-	"github.com/gin-gonic/gin"
 	"io"
 	"net/http"
 	"os"
@@ -222,8 +221,4 @@ func DownloadPicture(url string, filepath string) bool {
 		return false
 	}
 	return true
-}
-
-func ReturnFalse(c *gin.Context, data string) {
-	c.JSON(500, data)
 }
