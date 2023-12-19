@@ -163,6 +163,17 @@ func PathExists(path string) bool {
 	return false
 }
 
+func IsDir(path string) bool {
+	info, err := os.Stat(path)
+	if err != nil {
+		return false
+	}
+	if info.IsDir() {
+		return true
+	}
+	return false
+}
+
 // 合并两个列表，且去重
 func ConcatListUnique(first []string, second []string) []string {
 	lst := first

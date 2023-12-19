@@ -2,9 +2,12 @@ package main
 
 import (
 	"encoding/json"
+	"fmt"
 	"os"
 	"path/filepath"
+	"regexp"
 	"strconv"
+	"strings"
 )
 
 func RefreshService() {
@@ -15,31 +18,48 @@ func RefreshService() {
 
 	favors, err := os.ReadDir(videoFolderPath)
 	if err != nil {
+		fmt.Println("can't read", videoFolderPath)
 		return
 	}
 	for _, favor := range favors {
 		// 注意这层只能有文件夹，若有其他文件，则会跳过refresh
 		favorName := favor.Name() // 收藏文件夹
 		favorPath := videoFolderPath + favorName
+		if !IsDir(favorPath) || strings.HasPrefix(favorName, ".") || strings.HasPrefix(favorName, "@") {
+			fmt.Println("file not comply with refresh rule:", favorPath)
+			continue
+		}
 		var infoMap InfoMap
 		infoMap = make(InfoMap)
 
 		items, err := os.ReadDir(favorPath)
 		if err != nil {
-			return
+			fmt.Println("can't read", favorPath)
+			continue
 		}
 		for _, item := range items {
-			//fmt.Println(item.Name())
 			itemName := item.Name() // 视频条目
 			itemPath := favorPath + "/" + itemName
+			match, _ := regexp.MatchString("^[0-9]+$", itemName) // 匹配纯数字字符串
+			if !IsDir(itemPath) || !match {
+				fmt.Println("file not comply with refresh rule:", itemPath)
+				continue
+			}
 
 			pages, err := os.ReadDir(itemPath)
 			if err != nil {
-				return
+				fmt.Println("can't read", itemPath)
+				continue
 			}
 			for _, page := range pages {
 				pageName := page.Name() // 分片，一般以c_开头
 				pagePath := itemPath + "/" + pageName
+				match, _ := regexp.MatchString("^(c_)*[0-9]+$", pageName) // 匹配数字和c_字符串
+				if !IsDir(pagePath) || !match {
+					fmt.Println("file not comply with refresh rule:", pagePath)
+					continue
+				}
+
 				entryPath := pagePath + "/entry.json"
 				entry := ParseJSON(entryPath)
 
@@ -91,25 +111,23 @@ func RefreshService() {
 				var fps float64
 				tmps, err := os.ReadDir(pagePath)
 				if err != nil {
-					return
+					fmt.Println("can't read", pagePath)
+					continue
 				}
 				if len(tmps) == 0 {
 					os.Remove(pagePath)
 					continue
 				}
-				for _, tmp := range tmps {
-					if tmp.IsDir() {
-						indexPath := pagePath + "/" + tmp.Name() + "/index.json"
-						var indexJson Index_json
-						bytes, err := os.ReadFile(indexPath)
-						if err != nil {
-							return
-						}
-						err = json.Unmarshal(bytes, &indexJson)
-						fps, _ = strconv.ParseFloat(indexJson.Video[0].FrameRate, 64)
-						break
-					}
+
+				indexPath := pagePath + "/" + getStringValue(entry, "type_tag") + "/index.json"
+				var indexJson Index_json
+				bytes, err := os.ReadFile(indexPath)
+				if err != nil {
+					fmt.Println("can't read", indexPath)
+					continue
 				}
+				err = json.Unmarshal(bytes, &indexJson)
+				fps, _ = strconv.ParseFloat(indexJson.Video[0].FrameRate, 64)
 
 				// CustomInfo不能清零了，要从旧的对象中读
 				var customInfo *CustomInfo
