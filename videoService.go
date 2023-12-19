@@ -86,8 +86,8 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 		case 1: // 更新时间
 			return info1.UpdateTime > info2.UpdateTime
 		case 2: // 收藏时间
-			if info1.CustomInfo.CollectionTime != info1.CustomInfo.CollectionTime {
-				return info1.CustomInfo.CollectionTime > info1.CustomInfo.CollectionTime
+			if info1.CustomInfo.CollectionTime != info2.CustomInfo.CollectionTime {
+				return info1.CustomInfo.CollectionTime > info2.CustomInfo.CollectionTime
 			}
 			return info1.UpdateTime > info2.UpdateTime
 		//TODO 如果想要中文排序，好像需要将utf-8转换为GBK
@@ -100,17 +100,15 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 		//	}
 		//	return info1.UpdateTime > info2.UpdateTime
 		case 4: // 星级
-			if info1.CustomInfo.StarLevel != info1.CustomInfo.StarLevel {
-				return info1.CustomInfo.StarLevel > info1.CustomInfo.StarLevel
+			if info1.CustomInfo.StarLevel != info2.CustomInfo.StarLevel {
+				return info1.CustomInfo.StarLevel > info2.CustomInfo.StarLevel
 			}
 			return info1.UpdateTime > info2.UpdateTime
 		}
 		return info1.UpdateTime > info2.UpdateTime
 	})
 	if !desc { // 顺序
-		sort.Slice(videoList, func(i, j int) bool {
-			return true
-		})
+		reverse(videoList)
 	}
 
 	// 分页
@@ -151,6 +149,12 @@ func matchKeywords(info *VideoInfo, keywords string) bool {
 		}
 	}
 	return false
+}
+
+func reverse(s []*ListResultElement) {
+	for i, j := 0, len(s)-1; i < j; i, j = i+1, j-1 {
+		s[i], s[j] = s[j], s[i]
+	}
 }
 
 /*
