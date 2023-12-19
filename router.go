@@ -8,6 +8,11 @@ import (
 func NewRouter() *gin.Engine {
 	router := gin.Default()
 	router.Use(cors.Default())
+
+	// 将资源映射到url
+	router.Static("/video", "../assets/video")
+	router.Static("/cover", "../assets/cover")
+
 	apiGroup := router.Group("/api")
 	commonApi := &CommonApi{}
 	apiGroup.GET("/refresh", commonApi.Refresh)

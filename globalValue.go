@@ -1,16 +1,16 @@
 package main
 
 const (
-	assetsFolderPath     = "../assets/"
-	videoFolderPath      = assetsFolderPath + "video/"
+	assetsFolderPath = "../assets/"
+	videoFolderPath  = assetsFolderPath + "video/"
+	coverFolderPath  = assetsFolderPath + "cover/"
+
 	jsonFolderPath       = assetsFolderPath + "data/"
 	jsonBackupFolderPath = jsonFolderPath + "backup/"
+	jsonFileName         = "info.json"
+	jsonFilePath         = jsonFolderPath + jsonFileName
 
-	jsonFileName = "info.json"
-	jsonFilePath = jsonFolderPath + jsonFileName
-
-	webFolderPath   = "../bvp-web/"
-	coverFolderPath = webFolderPath + "public/cover/"
+	webFolderPath = "../bvp-web/"
 
 	videoNameConnector = ";" // itemName和pageName之间的分隔符
 
