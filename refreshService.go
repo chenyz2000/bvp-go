@@ -4,10 +4,12 @@ import (
 	"encoding/json"
 	"fmt"
 	"os"
+	"os/exec"
 	"path/filepath"
 	"regexp"
 	"strconv"
 	"strings"
+	"time"
 )
 
 func RefreshService() {
@@ -76,7 +78,6 @@ func RefreshService() {
 				}
 
 				// cover
-				// 之后可能需要根据web显示的要求调整这里的path，则需要根据旧cover值判断是否已下载
 				coverOnlineUrl := getStringValue(entry, "cover")
 				pictureName := key + filepath.Ext(coverOnlineUrl)
 				picturePath := coverFolderPath + pictureName
@@ -88,6 +89,10 @@ func RefreshService() {
 					// 下载会有一些耗时，之后在这里输出一下日志
 				}
 				cover := pictureName
+
+				// 合并为intact.mp4
+				mediaFolderName := getStringValue(entry, "type_tag")
+				intactOne(pagePath, mediaFolderName)
 
 				// 在page_data中的数据
 				var pageTitle, direction string
@@ -145,7 +150,7 @@ func RefreshService() {
 					Type:            videoType,
 					OwnerId:         getInt64Value(entry, "owner_id"),
 					OwnerName:       getStringValue(entry, "owner_name"),
-					MediaFolderName: getStringValue(entry, "type_tag"),
+					MediaFolderName: mediaFolderName,
 					Cover:           cover,
 					UpdateTime:      updateTime,
 					Direction:       direction,
@@ -202,4 +207,24 @@ func findCustomInfo(favorMap FavorMap, key string) *CustomInfo {
 		Description: "",
 		StarLevel:   0,
 	}
+}
+
+func intactOne(pagePath string, mediaFolderName string) {
+	videoPath := pagePath + "/" + mediaFolderName + "/video.m4s"
+	audioPath := pagePath + "/" + mediaFolderName + "/audio.m4s"
+	intactPath := pagePath + "/intact.mp4"
+	if PathExists(intactPath) {
+		return
+	}
+
+	startTime := time.Now().Unix()
+	// 执行ffmpeg
+	cmd := exec.Command("ffmpeg", "-i", videoPath, "-i", audioPath, "-vcodec", "copy", "-acodec", "copy", "-threads", "4", intactPath)
+	_, err := cmd.CombinedOutput()
+	if err != nil {
+		fmt.Println("ffmpeg intact error", pagePath)
+		return
+	}
+	endTime := time.Now().Unix()
+	fmt.Println("ffmpeg intact finished, endTime:", endTime, ", costTime: ", endTime-startTime, ", pagePath: ", pagePath)
 }
