@@ -20,7 +20,7 @@ func RefreshService() {
 
 	favors, err := os.ReadDir(videoFolderPath)
 	if err != nil {
-		fmt.Println("can't read", videoFolderPath)
+		fmt.Println("can't read video folder path", videoFolderPath)
 		return
 	}
 	for _, favor := range favors {
@@ -36,7 +36,7 @@ func RefreshService() {
 
 		items, err := os.ReadDir(favorPath)
 		if err != nil {
-			fmt.Println("can't read", favorPath)
+			fmt.Println("can't read favor path", favorPath)
 			continue
 		}
 		for _, item := range items {
@@ -50,7 +50,7 @@ func RefreshService() {
 
 			pages, err := os.ReadDir(itemPath)
 			if err != nil {
-				fmt.Println("can't read", itemPath)
+				fmt.Println("can't read item path", itemPath)
 				continue
 			}
 			for _, page := range pages {
@@ -63,6 +63,10 @@ func RefreshService() {
 				}
 
 				entryPath := pagePath + "/entry.json"
+				if !PathExists(entryPath){
+					fmt.Println("entry file doesn't exist", entryPath)
+					continue
+				}
 				entry := ParseJSON(entryPath)
 
 				// 完全不管番剧了，因为番剧下载的实在太少了，只支持普通视频的xml
@@ -92,6 +96,10 @@ func RefreshService() {
 
 				// 合并为intact.mp4
 				mediaFolderName := getStringValue(entry, "type_tag")
+				if mediaFolderName==""{
+					fmt.Println("can't get media folder", pagePath)
+					continue
+				}
 				intactOne(pagePath, mediaFolderName)
 
 				// 在page_data中的数据
@@ -116,7 +124,7 @@ func RefreshService() {
 				var fps float64
 				tmps, err := os.ReadDir(pagePath)
 				if err != nil {
-					fmt.Println("can't read", pagePath)
+					fmt.Println("can't read page path", pagePath)
 					continue
 				}
 				if len(tmps) == 0 {
@@ -124,11 +132,11 @@ func RefreshService() {
 					continue
 				}
 
-				indexPath := pagePath + "/" + getStringValue(entry, "type_tag") + "/index.json"
+				indexPath := pagePath + "/" + mediaFolderName + "/index.json"
 				var indexJson Index_json
 				bytes, err := os.ReadFile(indexPath)
 				if err != nil {
-					fmt.Println("can't read", indexPath)
+					fmt.Println("can't read index path", indexPath)
 					continue
 				}
 				err = json.Unmarshal(bytes, &indexJson)
@@ -146,7 +154,7 @@ func RefreshService() {
 					Title:           getStringValue(entry, "title"),
 					PageTitle:       pageTitle,
 					PageOrder:       pageOrder,
-					Transcoded:      PathExists(pagePath + "/out.mp4"),
+					Transcoded:      PathExists(pagePath + "/intact.mp4"),
 					Type:            videoType,
 					OwnerId:         getInt64Value(entry, "owner_id"),
 					OwnerName:       getStringValue(entry, "owner_name"),
@@ -226,5 +234,7 @@ func intactOne(pagePath string, mediaFolderName string) {
 		return
 	}
 	endTime := time.Now().Unix()
-	fmt.Println("ffmpeg intact finished, endTime:", endTime, ", costTime: ", endTime-startTime, ", pagePath: ", pagePath)
+	costTime := endTime - startTime
+	_ = costTime
+	// fmt.Println("ffmpeg intact finished, endTime:", endTime, ", costTime: ", costTime, ", pagePath: ", pagePath)
 }
