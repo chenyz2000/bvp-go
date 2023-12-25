@@ -258,9 +258,9 @@ func (v *VideoService) UpdateCustomInfo(param *UpdateCustomInfoParam) {
 		for k, videoInfo := range infoMap {
 			if k == param.VideoName {
 				// 保留原有的收藏时间
-				collectionTime := videoInfo.CustomInfo.CollectionTime
+				param.CustomInfo.CollectionTime = videoInfo.CustomInfo.CollectionTime
+				param.CustomInfo.VCodec = videoInfo.CustomInfo.VCodec
 				videoInfo.CustomInfo = param.CustomInfo
-				videoInfo.CustomInfo.CollectionTime = collectionTime
 				break
 			}
 		}

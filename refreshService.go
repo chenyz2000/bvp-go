@@ -150,7 +150,7 @@ func RefreshService() {
 					customInfo.CollectionTime = updateTime
 				}
 				if customInfo.VCodec == "" { // 如果视频编码为空，获取视频编码
-					customInfo.VCodec = getVideoCodec(pagePath + "/" + mediaFolderName + "/video.mp4")
+					customInfo.VCodec = getVideoCodec(pagePath + "/" + mediaFolderName + "/video.m4s")
 				}
 
 				// 组装完整Info对象
@@ -218,6 +218,7 @@ func findCustomInfo(favorMap FavorMap, key string) *CustomInfo {
 		Tag:         make([]string, 0),
 		Description: "",
 		StarLevel:   0,
+		NeedH264:    false,
 	}
 }
 
