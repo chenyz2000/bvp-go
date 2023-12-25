@@ -1,8 +1,12 @@
 package main
 
 import (
+	"bytes"
 	"encoding/json"
 	"fmt"
+	"golang.org/x/text/encoding/simplifiedchinese"
+	"golang.org/x/text/transform"
+	"io"
 	"os"
 	"sort"
 	"strings"
@@ -70,9 +74,6 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 
 	// 根据sort排序
 	sortType := param.Sort
-	if !MatchIntList(sortType, []int{-1, -2, -3, -4, 1, 2, 3, 4}) {
-		sortType = -1
-	}
 	desc := false
 	if sortType < 0 {
 		desc = true
@@ -90,20 +91,24 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 				return info1.CustomInfo.CollectionTime > info2.CustomInfo.CollectionTime
 			}
 			return info1.UpdateTime > info2.UpdateTime
-		//TODO 如果想要中文排序，好像需要将utf-8转换为GBK
-		//case 3: // 名称
-		//	if info1.Title != info2.Title {
-		//		return info1.Title > info2.Title
-		//	}
-		//	if info1.PageTitle != info2.PageTitle {
-		//		return info1.PageTitle > info2.PageTitle
-		//	}
-		//	return info1.UpdateTime > info2.UpdateTime
-		case 4: // 星级
+		case 3: // 星级，只用倒序
 			if info1.CustomInfo.StarLevel != info2.CustomInfo.StarLevel {
 				return info1.CustomInfo.StarLevel > info2.CustomInfo.StarLevel
 			}
 			return info1.UpdateTime > info2.UpdateTime
+		case 4: // 标题名称中文拼音排序，只用顺序
+			if info1.Title != info2.Title {
+				return !gbkLess(info1.Title, info2.Title)
+			}
+			if info1.PageTitle != info2.PageTitle {
+				return !gbkLess(info1.PageTitle, info2.PageTitle)
+			}
+			return info1.UpdateTime < info2.UpdateTime
+		case 5: // UP主名称中文拼音排序，只用顺序
+			if info1.OwnerName != info2.OwnerName {
+				return !gbkLess(info1.OwnerName, info2.OwnerName)
+			}
+			return info1.UpdateTime < info2.UpdateTime
 		}
 		return info1.UpdateTime > info2.UpdateTime
 	})
@@ -131,6 +136,26 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 		Count: count,
 		List:  resList,
 	}
+}
+
+func utf2gbk(src string) ([]byte, error) {
+	GB18030 := simplifiedchinese.All[0]
+	return io.ReadAll(transform.NewReader(bytes.NewReader([]byte(src)), GB18030.NewEncoder()))
+}
+
+func gbkLess(str1, str2 string) bool {
+	a, _ := utf2gbk(str1)
+	b, _ := utf2gbk(str2)
+	bLen := len(b)
+	for idx, chr := range a {
+		if idx > bLen-1 {
+			return false
+		}
+		if chr != b[idx] {
+			return chr < b[idx]
+		}
+	}
+	return true
 }
 
 func matchKeywords(info *VideoInfo, keywords string) bool {
