@@ -3,6 +3,7 @@ package main
 import (
 	"encoding/json"
 	"fmt"
+	ffgo "github.com/u2takey/ffmpeg-go"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -63,7 +64,7 @@ func RefreshService() {
 				}
 
 				entryPath := pagePath + "/entry.json"
-				if !PathExists(entryPath){
+				if !PathExists(entryPath) {
 					fmt.Println("entry file doesn't exist", entryPath)
 					continue
 				}
@@ -96,7 +97,7 @@ func RefreshService() {
 
 				// 合并为intact.mp4
 				mediaFolderName := getStringValue(entry, "type_tag")
-				if mediaFolderName==""{
+				if mediaFolderName == "" {
 					fmt.Println("can't get media folder", pagePath)
 					continue
 				}
@@ -105,7 +106,7 @@ func RefreshService() {
 				// 在page_data中的数据
 				var pageTitle, direction string
 				var pageOrder, height, width int32
-				pageData := getMapValue(entry, "page_data") // 子标签page_data转成的map
+				pageData := getMapValueFromMap(entry, "page_data") // 子标签page_data转成的map
 				if pageData != nil {
 					pageTitle = getStringValue(pageData, "part")
 					pageOrder = getInt32Value(pageData, "page")
@@ -147,6 +148,9 @@ func RefreshService() {
 				customInfo = findCustomInfo(favorMap, key)
 				if customInfo.CollectionTime == 0 { // 如果收藏时间为空，则设置为视频更新时间
 					customInfo.CollectionTime = updateTime
+				}
+				if customInfo.VCodec == "" { // 如果视频编码为空，获取视频编码
+					customInfo.VCodec = getVideoCodec(pagePath + "/" + mediaFolderName + "/video.mp4")
 				}
 
 				// 组装完整Info对象
@@ -215,6 +219,27 @@ func findCustomInfo(favorMap FavorMap, key string) *CustomInfo {
 		Description: "",
 		StarLevel:   0,
 	}
+}
+
+func getVideoCodec(videoPath string) string {
+	str, err := ffgo.Probe(videoPath)
+	if err != nil {
+		fmt.Println("get video codec error:", videoPath)
+		return ""
+	}
+	var mp map[string]interface{}
+	err = json.Unmarshal([]byte(str), &mp)
+	if err != nil {
+		fmt.Println("ffprobe unmarshal error:", videoPath)
+		return ""
+	}
+	stream := getMapValueFromList(getListValue(mp, "streams"), 0)
+	if stream == nil {
+		fmt.Println("stream is nil", videoPath)
+		return ""
+	}
+	vCodec := getStringValue(stream, "codec_name")
+	return vCodec
 }
 
 func intactOne(pagePath string, mediaFolderName string) {

@@ -94,10 +94,33 @@ func getInt32Value(mp map[string]interface{}, key string) int32 {
 	return int32(num)
 }
 
-func getMapValue(mp map[string]interface{}, key string) map[string]interface{} {
+func getMapValueFromMap(mp map[string]interface{}, key string) map[string]interface{} {
 	inter, ok := mp[key]
 	if ok {
 		v, ok := inter.(map[string]interface{})
+		if ok {
+			return v
+		}
+	}
+	return nil
+}
+
+func getMapValueFromList(lst []interface{}, index int) map[string]interface{} {
+	if len(lst) <= index {
+		return nil
+	}
+	inter := lst[index]
+	v, ok := inter.(map[string]interface{})
+	if ok {
+		return v
+	}
+	return nil
+}
+
+func getListValue(mp map[string]interface{}, key string) []interface{} {
+	inter, ok := mp[key]
+	if ok {
+		v, ok := inter.([]interface{})
 		if ok {
 			return v
 		}
