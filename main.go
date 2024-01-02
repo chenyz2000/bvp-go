@@ -18,6 +18,9 @@ func main() {
 	if !PathExists(coverFolderPath) {
 		os.Mkdir(coverFolderPath, 0777)
 	}
+	if !PathExists(intactVideoFolderPath) {
+		os.Mkdir(intactVideoFolderPath, 0777)
+	}
 
 	// 启动时应自动调用一次Transcode和refreshService方法
 	//ch <- 1 // 向channel发送，如果能发送则可以调用

@@ -10,8 +10,8 @@ func NewRouter() *gin.Engine {
 	router.Use(cors.Default())
 
 	// 将资源映射到url
-	router.Static("/video", "../assets/video")
-	router.Static("/cover", "../assets/cover")
+	router.Static("/video", intactVideoFolderPath)
+	router.Static("/cover", coverFolderPath)
 
 	apiGroup := router.Group("/api")
 	commonApi := &CommonApi{}

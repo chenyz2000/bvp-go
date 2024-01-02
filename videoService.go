@@ -186,7 +186,7 @@ func reverse(s []*ListResultElement) {
 更新视频Favor
 */
 func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
-	newFavorPath := videoFolderPath + param.NewFavorName
+	newFavorPath := originDownloadFolderPath + param.NewFavorName
 	for _, videoName := range param.VideoNameList {
 		oldFavorName := findFavorName(videoName, favorMap)
 		if oldFavorName == param.NewFavorName {
@@ -213,14 +213,14 @@ func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
 			}
 		}
 		// 移动文件夹
-		oldPagePath := videoFolderPath + oldFavorName + "/" + itemName + "/" + pageName
-		newPagePath := videoFolderPath + param.NewFavorName + "/" + itemName + "/" + pageName
+		oldPagePath := originDownloadFolderPath + oldFavorName + "/" + itemName + "/" + pageName
+		newPagePath := originDownloadFolderPath + param.NewFavorName + "/" + itemName + "/" + pageName
 		err := os.Rename(oldPagePath, newPagePath)
 		if err != nil {
 			fmt.Println(oldPagePath + "移动至" + newPagePath + "错误")
 			return err
 		}
-		oldItemPath := videoFolderPath + oldFavorName + "/" + itemName
+		oldItemPath := originDownloadFolderPath + oldFavorName + "/" + itemName
 		dir, _ := os.ReadDir(oldItemPath)
 		if len(dir) == 0 { // 若旧item目录为空，则删除
 			err := os.Remove(oldItemPath)

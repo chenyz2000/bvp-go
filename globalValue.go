@@ -1,9 +1,10 @@
 package main
 
 const (
-	assetsFolderPath = "../assets/"
-	videoFolderPath  = assetsFolderPath + "video/"
-	coverFolderPath  = assetsFolderPath + "cover/"
+	assetsFolderPath         = "../bvp-assets/"
+	originDownloadFolderPath = assetsFolderPath + "origin_download/"
+	coverFolderPath          = assetsFolderPath + "cover/"
+	intactVideoFolderPath    = assetsFolderPath + "intact_video/"
 
 	jsonFolderPath       = assetsFolderPath + "data/"
 	jsonBackupFolderPath = jsonFolderPath + "backup/"

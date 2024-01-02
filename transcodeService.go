@@ -17,7 +17,7 @@ func Transcode() {
 		//ReturnFalse(c, "don't have ffmpeg")
 	}
 
-	favors, err := os.ReadDir(videoFolderPath)
+	favors, err := os.ReadDir(originDownloadFolderPath)
 	if err != nil {
 		return
 	}
@@ -25,7 +25,7 @@ func Transcode() {
 		if favor.Name() == "跳过转码" {
 			continue
 		}
-		favorPath := videoFolderPath + favor.Name() // 收藏文件夹
+		favorPath := originDownloadFolderPath + favor.Name() // 收藏文件夹
 
 		items, err := os.ReadDir(favorPath)
 		if err != nil {

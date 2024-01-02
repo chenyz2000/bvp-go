@@ -19,15 +19,15 @@ func RefreshService() {
 	var newFavorMap FavorMap
 	newFavorMap = make(FavorMap)
 
-	favors, err := os.ReadDir(videoFolderPath)
+	favors, err := os.ReadDir(originDownloadFolderPath)
 	if err != nil {
-		fmt.Println("can't read video folder path", videoFolderPath)
+		fmt.Println("can't read video folder path", originDownloadFolderPath)
 		return
 	}
 	for _, favor := range favors {
 		// 注意这层只能有文件夹，若有其他文件，则会跳过refresh
 		favorName := favor.Name() // 收藏文件夹
-		favorPath := videoFolderPath + favorName
+		favorPath := originDownloadFolderPath + favorName
 		if !IsDir(favorPath) || strings.HasPrefix(favorName, ".") || strings.HasPrefix(favorName, "@") {
 			fmt.Println("file not comply with refresh rule:", favorPath)
 			continue
@@ -101,7 +101,8 @@ func RefreshService() {
 					fmt.Println("can't get media folder", pagePath)
 					continue
 				}
-				intactOne(pagePath, mediaFolderName)
+				mediaFolderPath := pagePath + "/" + mediaFolderName + "/"
+				intactOne(mediaFolderPath, key)
 
 				// 在page_data中的数据
 				var pageTitle, direction string
@@ -243,10 +244,11 @@ func getVideoCodec(videoPath string) string {
 	return vCodec
 }
 
-func intactOne(pagePath string, mediaFolderName string) {
-	videoPath := pagePath + "/" + mediaFolderName + "/video.m4s"
-	audioPath := pagePath + "/" + mediaFolderName + "/audio.m4s"
-	intactPath := pagePath + "/intact.mp4"
+func intactOne(mediaFolderPath string, key string) {
+	videoPath := mediaFolderPath + "video.m4s"
+	audioPath := mediaFolderPath + "audio.m4s"
+
+	intactPath := intactVideoFolderPath + key + ".mp4"
 	if PathExists(intactPath) {
 		return
 	}
@@ -256,11 +258,11 @@ func intactOne(pagePath string, mediaFolderName string) {
 	cmd := exec.Command("ffmpeg", "-i", videoPath, "-i", audioPath, "-vcodec", "copy", "-acodec", "copy", "-threads", "4", intactPath)
 	_, err := cmd.CombinedOutput()
 	if err != nil {
-		fmt.Println("ffmpeg intact error", pagePath)
+		fmt.Println("ffmpeg intact error:", err, "path:", mediaFolderPath)
 		return
 	}
 	endTime := time.Now().Unix()
 	costTime := endTime - startTime
 	_ = costTime
-	// fmt.Println("ffmpeg intact finished, endTime:", endTime, ", costTime: ", costTime, ", pagePath: ", pagePath)
+	//fmt.Println("ffmpeg intact finished, endTime:", endTime, ", costTime: ", costTime, ", key: ", key)
 }
