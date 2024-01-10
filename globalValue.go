@@ -11,8 +11,6 @@ const (
 	jsonFileName         = "info.json"
 	jsonFilePath         = jsonFolderPath + jsonFileName
 
-	webFolderPath = "../bvp-web/"
-
 	videoNameConnector = ";" // itemName和pageName之间的分隔符
 
 	CHANNEL_CAPACITY = 1

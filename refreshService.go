@@ -159,7 +159,7 @@ func RefreshService() {
 					Title:           getStringValue(entry, "title"),
 					PageTitle:       pageTitle,
 					PageOrder:       pageOrder,
-					Transcoded:      PathExists(pagePath + "/intact.mp4"),
+					Transcoded:      true,
 					Type:            videoType,
 					OwnerId:         getInt64Value(entry, "owner_id"),
 					OwnerName:       getStringValue(entry, "owner_name"),

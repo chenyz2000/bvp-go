@@ -12,9 +12,6 @@ func main() {
 	if !PathExists(jsonBackupFolderPath) {
 		os.Mkdir(jsonBackupFolderPath, 0777)
 	}
-	if !PathExists(webFolderPath) {
-		os.Mkdir(webFolderPath, 0777)
-	}
 	if !PathExists(coverFolderPath) {
 		os.Mkdir(coverFolderPath, 0777)
 	}
