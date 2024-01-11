@@ -21,7 +21,7 @@ type VideoService struct {
 func (v *VideoService) List(param *ListParam) *ListResult {
 	videoList := make([]*ListResultElement, 0)
 	for favorName, infoMap := range favorMap {
-		if !MatchStringList(favorName, param.Favor) {
+		if !MatchStringWithParam(favorName, param.Favor) {
 			continue
 		}
 
@@ -39,7 +39,7 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 			if !HaveIntersection(videoInfo.CustomInfo.Tag, param.Tag) {
 				continue
 			}
-			if !MatchStringList(videoInfo.Clarity, param.Clarity) {
+			if !MatchStringWithParam(videoInfo.Clarity, param.Clarity) {
 				continue
 			}
 			if param.PeopleMarked != "" {
@@ -164,7 +164,7 @@ func matchKeywords(info *VideoInfo, keywords string) bool {
 	for _, or := range strings.Split(keywords, "|") {
 		match := true
 		for _, and := range strings.Split(or, ",") {
-			if !strings.Contains(s, and) {
+			if !strings.Contains(strings.ToLower(s), strings.ToLower(and)) {
 				match = false
 				break
 			}

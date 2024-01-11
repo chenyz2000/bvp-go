@@ -44,6 +44,11 @@ type InfoMap map[string]*VideoInfo
 type FavorMap map[string]InfoMap
 
 /*
+对应automap.json中的每项
+*/
+type AutoMapItem map[string][]string
+
+/*
 对应index.json
 */
 type Index_video struct {

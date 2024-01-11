@@ -144,16 +144,20 @@ func MatchIntList(num int, num_list []int) bool {
 	return false
 }
 
-func MatchStringList(str_info string, str_param string) bool { // str_param是以逗号分割的字符串
-	if str_param == "" {
-		return true
-	}
-	for _, val := range strings.Split(str_param, ",") {
-		if str_info == val {
+func MatchStringList(str string, str_list []string) bool {
+	for _, val := range str_list {
+		if str == val {
 			return true
 		}
 	}
 	return false
+}
+
+func MatchStringWithParam(str_info string, str_param string) bool { // str_param是以逗号分割的字符串
+	if str_param == "" {
+		return true
+	}
+	return MatchStringList(str_info, strings.Split(str_param, ","))
 }
 
 func HaveIntersection(list_info []string, str_param string) bool {
@@ -164,7 +168,7 @@ func HaveIntersection(list_info []string, str_param string) bool {
 		return false
 	}
 	for _, v := range list_info {
-		if MatchStringList(v, str_param) {
+		if MatchStringWithParam(v, str_param) {
 			return true
 		}
 	}

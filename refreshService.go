@@ -14,6 +14,21 @@ import (
 )
 
 func RefreshService() {
+	// 读取automap.json
+	bytes, err := os.ReadFile(assetsFolderPath + "automap.json")
+	if err != nil {
+		fmt.Println("can't read automap.json")
+		return
+	}
+	var autoMap map[string]AutoMapItem
+	err = json.Unmarshal(bytes, &autoMap)
+	owner2People := inverseMap(autoMap["peopleByOwner"])
+	title2People := inverseMap(autoMap["peopleByTitle"])
+	title2Tag := inverseMap(autoMap["tagByTitle"])
+
+	/*
+		更新FavorMap
+	*/
 	favorMap = Deserialize() // 旧json文件
 
 	var newFavorMap FavorMap
@@ -144,25 +159,50 @@ func RefreshService() {
 				err = json.Unmarshal(bytes, &indexJson)
 				fps, _ = strconv.ParseFloat(indexJson.Video[0].FrameRate, 64)
 
-				// CustomInfo不能清零了，要从旧的对象中读
-				var customInfo *CustomInfo
-				customInfo = findCustomInfo(favorMap, key)
-				if customInfo.CollectionTime == 0 { // 如果收藏时间为空，则设置为视频更新时间
+				/*
+					获取CustomInfo
+				*/
+				ownerName := getStringValue(entry, "owner_name")
+				title := getStringValue(entry, "title")
+				//从旧favormap中读，而不是每次赋新值
+				customInfo := findCustomInfo(favorMap, key)
+				// 如果收藏时间为空，则设置为视频更新时间
+				if customInfo.CollectionTime == 0 {
 					customInfo.CollectionTime = updateTime
 				}
-				if customInfo.VCodec == "" { // 如果视频编码为空，获取视频编码
+				// 如果视频编码为空，获取视频编码
+				if customInfo.VCodec == "" {
 					customInfo.VCodec = getVideoCodec(pagePath + "/" + mediaFolderName + "/video.m4s")
+				}
+				//automap—owner2People
+				target := owner2People[ownerName]
+				if target != "" && !MatchStringList(target, customInfo.People) {
+					customInfo.People = append(customInfo.People, target)
+				}
+				//automap—title2People
+				for key := range title2People {
+					if strings.Contains(strings.ToLower(title), strings.ToLower(key)) &&
+						!MatchStringList(title2People[key], customInfo.People) {
+						customInfo.People = append(customInfo.People, title2People[key])
+					}
+				}
+				//automap—title2Tag
+				for key := range title2Tag {
+					if strings.Contains(strings.ToLower(title), strings.ToLower(key)) &&
+						!MatchStringList(title2Tag[key], customInfo.Tag) {
+						customInfo.Tag = append(customInfo.Tag, title2Tag[key])
+					}
 				}
 
 				// 组装完整Info对象
 				videoPage := &VideoInfo{
-					Title:           getStringValue(entry, "title"),
+					Title:           title,
 					PageTitle:       pageTitle,
 					PageOrder:       pageOrder,
 					Transcoded:      true,
 					Type:            videoType,
 					OwnerId:         getInt64Value(entry, "owner_id"),
-					OwnerName:       getStringValue(entry, "owner_name"),
+					OwnerName:       ownerName,
 					MediaFolderName: mediaFolderName,
 					Cover:           cover,
 					UpdateTime:      updateTime,
@@ -199,6 +239,18 @@ func RefreshService() {
 
 	// 写入info.json文件
 	Serialize(favorMap)
+}
+
+// 转置Map，取list中的字符串作为键
+func inverseMap(item AutoMapItem) map[string]string {
+	res := make(map[string]string)
+	for key := range item {
+		lst := item[key]
+		for _, s := range lst {
+			res[s] = key
+		}
+	}
+	return res
 }
 
 // 根据videoName（item+page）获取其CustomInfo
