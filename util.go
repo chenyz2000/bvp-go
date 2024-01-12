@@ -149,6 +149,10 @@ func MatchStringList(str string, str_list []string) bool {
 		if str == val {
 			return true
 		}
+		// 当列表中的值以-开头时，视为匹配到
+		if strings.HasPrefix(val, "-") && "-"+str == val {
+			return true
+		}
 	}
 	return false
 }
