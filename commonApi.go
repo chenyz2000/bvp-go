@@ -28,19 +28,18 @@ func (api *CommonApi) ListProperty(c *gin.Context) {
 	tagCount := make(CountMap)
 	clarityCount := make(CountMap)
 	directionCount := make(CountMap)
-	transcodeCount := make(CountMap)
-
+	vCodecCount := make(CountMap)
 	for favorName, infoMap := range favorMap {
 		favorCount[favorName] = len(infoMap) // favor
 		for _, videoInfo := range infoMap {
-			clarityCount[videoInfo.Clarity]++     // clarity
-			directionCount[videoInfo.Direction]++ // direction
-			if videoInfo.Transcoded {
-				transcodeCount["已转码"]++
-			} else {
-				transcodeCount["未转码"]++
+			if videoInfo.Clarity != "" { // clarity
+				clarityCount[videoInfo.Clarity]++
+			}
+			if videoInfo.Direction != "" { // direction
+				directionCount[videoInfo.Direction]++
 			}
 			customInfo := videoInfo.CustomInfo
+			vCodecCount[customInfo.VCodec]++      // vCodecCount
 			for _, v := range customInfo.People { //people
 				peopleCount[v]++
 			}
@@ -50,12 +49,12 @@ func (api *CommonApi) ListProperty(c *gin.Context) {
 		}
 	}
 	res := &Property{
-		Favor:     favorCount,
-		People:    peopleCount,
-		Tag:       tagCount,
-		Clarity:   clarityCount,
-		Direction: directionCount,
-		Transcode: transcodeCount,
+		Favor:       favorCount,
+		People:      peopleCount,
+		Tag:         tagCount,
+		Clarity:     clarityCount,
+		Direction:   directionCount,
+		VCodecCount: vCodecCount,
 	}
 	c.JSON(200, *res)
 }
