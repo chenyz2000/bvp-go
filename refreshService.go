@@ -199,7 +199,6 @@ func RefreshService() {
 					Title:           title,
 					PageTitle:       pageTitle,
 					PageOrder:       pageOrder,
-					Transcoded:      true,
 					Type:            videoType,
 					OwnerId:         getInt64Value(entry, "owner_id"),
 					OwnerName:       ownerName,

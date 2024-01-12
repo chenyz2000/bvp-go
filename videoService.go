@@ -51,15 +51,6 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 					continue
 				}
 			}
-			if param.Transcode != "" {
-				transcode := "未转码"
-				if videoInfo.Transcoded {
-					transcode = "已转码"
-				}
-				if transcode != param.Transcode {
-					continue
-				}
-			}
 			// 其他条件
 			// 筛完后，加入resList
 			ele := &ListResultElement{
