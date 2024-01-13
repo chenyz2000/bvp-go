@@ -12,7 +12,7 @@ type CustomInfo struct {
 
 	/* 以下字段只支持自动修改 */
 	CollectionTime int64  `json:"colletion_time"` // 收藏时间
-	VCodec         string `json:"v_codec"`        // 视频编码
+	Vcodec         string `json:"vcodec"`         // 视频编码
 }
 
 type VideoInfo struct { // 视频的每一个分片对应一个VideoInfo

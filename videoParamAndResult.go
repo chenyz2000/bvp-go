@@ -9,7 +9,7 @@ type ListParam struct {
 	Tag          string `form:"tag"`           // 多选，逗号分割
 	Clarity      string `form:"clarity"`       // 多选，逗号分割
 	PeopleMarked string `form:"people_marked"` // 含义：已标注people。单选。取值：已标注，未标注
-	Transcode    string `form:"transcode"`     // 单选。取值：已转码，未转码
+	Vcodec       string `form:"vcodec"`        // 单选
 	// 其他
 	Sort     int `form:"sort"` // 负数为倒序，正数为顺序。1更新时间、2收藏时间、3名称、4星级，5UP主名。默认为-1
 	Page     int `form:"page"`

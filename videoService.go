@@ -32,6 +32,9 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 			if param.Direction != "" && videoInfo.Direction != param.Direction {
 				continue
 			}
+			if param.Vcodec != "" && videoInfo.CustomInfo.Vcodec != param.Vcodec {
+				continue
+			}
 			if !HaveIntersection(videoInfo.CustomInfo.People, param.People) {
 				continue
 			}
@@ -250,7 +253,7 @@ func (v *VideoService) UpdateCustomInfo(param *UpdateCustomInfoParam) {
 			if k == param.VideoName {
 				// 保留原有的收藏时间
 				param.CustomInfo.CollectionTime = videoInfo.CustomInfo.CollectionTime
-				param.CustomInfo.VCodec = videoInfo.CustomInfo.VCodec
+				param.CustomInfo.Vcodec = videoInfo.CustomInfo.Vcodec
 				videoInfo.CustomInfo = param.CustomInfo
 				break
 			}

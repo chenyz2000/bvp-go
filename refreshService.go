@@ -171,8 +171,8 @@ func RefreshService() {
 					customInfo.CollectionTime = updateTime
 				}
 				// 如果视频编码为空，获取视频编码
-				if customInfo.VCodec == "" {
-					customInfo.VCodec = getVideoCodec(pagePath + "/" + mediaFolderName + "/video.m4s")
+				if customInfo.Vcodec == "" {
+					customInfo.Vcodec = getVideoCodec(pagePath + "/" + mediaFolderName + "/video.m4s")
 				}
 				//automap—owner2People
 				target := owner2People[ownerName]
@@ -294,8 +294,8 @@ func getVideoCodec(videoPath string) string {
 		fmt.Println("stream is nil", videoPath)
 		return ""
 	}
-	vCodec := getStringValue(stream, "codec_name")
-	return vCodec
+	vcodec := getStringValue(stream, "codec_name")
+	return vcodec
 }
 
 func intactOne(mediaFolderPath string, key string) {

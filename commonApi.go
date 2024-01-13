@@ -39,7 +39,7 @@ func (api *CommonApi) ListProperty(c *gin.Context) {
 				directionCount[videoInfo.Direction]++
 			}
 			customInfo := videoInfo.CustomInfo
-			vcodecCount[customInfo.VCodec]++      // vCodecCount
+			vcodecCount[customInfo.Vcodec]++      // vCodecCount
 			for _, v := range customInfo.People { //people
 				peopleCount[v]++
 			}
