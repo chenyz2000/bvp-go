@@ -15,7 +15,7 @@ import (
 
 func RefreshService() {
 	// 读取automap.json
-	bytes, err := os.ReadFile(assetsFolderPath + "automap.json")
+	bytes, err := os.ReadFile(automapFilePath)
 	if err != nil {
 		fmt.Println("can't read automap.json")
 		return

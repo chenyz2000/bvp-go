@@ -8,8 +8,9 @@ const (
 
 	jsonFolderPath       = assetsFolderPath + "data/"
 	jsonBackupFolderPath = jsonFolderPath + "backup/"
-	jsonFileName         = "info.json"
-	jsonFilePath         = jsonFolderPath + jsonFileName
+	jsonFilePath         = jsonFolderPath + "info.json"
+
+	automapFilePath = assetsFolderPath + "automap.json"
 
 	videoNameConnector = ";" // itemName和pageName之间的分隔符
 

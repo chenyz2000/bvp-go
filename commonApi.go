@@ -1,6 +1,10 @@
 package main
 
-import "github.com/gin-gonic/gin"
+import (
+	"fmt"
+	"github.com/gin-gonic/gin"
+	"os"
+)
 
 type CommonApi struct {
 }
@@ -21,7 +25,7 @@ func (api *CommonApi) Transcode(c *gin.Context) {
 }
 
 // 返回对属性的统计，属性包括favor、people、tag
-func (api *CommonApi) ListProperty(c *gin.Context) {
+func (api *CommonApi) GetProperty(c *gin.Context) {
 	// 因为go不支持set，所以用map的key去重，value表示key出现的次数
 	favorCount := make(CountMap)
 	peopleCount := make(CountMap)
@@ -57,4 +61,26 @@ func (api *CommonApi) ListProperty(c *gin.Context) {
 		Vcodec:    vcodecCount,
 	}
 	c.JSON(200, *res)
+}
+
+// 获取automap.json的字符串
+func (api *CommonApi) GetAutoMapJson(c *gin.Context) {
+	bytes, err := os.ReadFile(automapFilePath)
+	if err != nil {
+		fmt.Println("can't read automap.json")
+		c.JSON(500, err)
+		return
+	}
+	c.JSON(200, string(bytes))
+}
+
+type UpdateAutoMapParam struct {
+	JsonStr string `json:"json_str"`
+}
+
+// 更新automap.json
+func (api *CommonApi) UpdateAutoMap(c *gin.Context) {
+	param := &UpdateAutoMapParam{}
+	c.ShouldBindJSON(param)
+	os.WriteFile(automapFilePath, []byte(param.JsonStr), 0666)
 }

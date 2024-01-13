@@ -16,7 +16,9 @@ func NewRouter() *gin.Engine {
 	apiGroup := router.Group("/api")
 	commonApi := &CommonApi{}
 	apiGroup.GET("/refresh", commonApi.Refresh)
-	apiGroup.GET("/get-property", commonApi.ListProperty)
+	apiGroup.GET("/get-property", commonApi.GetProperty)
+	apiGroup.GET("/get-automap", commonApi.GetAutoMapJson)
+	apiGroup.PUT("/update-automap", commonApi.UpdateAutoMap)
 	//apiGroup.GET("/transcode", commonApi.Transcode)
 
 	videoGroup := apiGroup.Group("/video")
