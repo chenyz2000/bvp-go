@@ -4,6 +4,7 @@ import (
 	"fmt"
 	"github.com/gin-gonic/gin"
 	"os"
+	"sort"
 )
 
 type CommonApi struct {
@@ -47,20 +48,41 @@ func (api *CommonApi) GetProperty(c *gin.Context) {
 			for _, v := range customInfo.People { //people
 				peopleCount[v]++
 			}
+			if len(customInfo.People) == 0 {
+				peopleCount["【未标注】"]++
+			}
 			for _, v := range customInfo.Tag { //tag
 				tagCount[v]++
+			}
+			if len(customInfo.Tag) == 0 {
+				tagCount["【未标注】"]++
 			}
 		}
 	}
 	res := &Property{
-		Favor:     favorCount,
-		People:    peopleCount,
-		Tag:       tagCount,
-		Clarity:   clarityCount,
-		Direction: directionCount,
-		Vcodec:    vcodecCount,
+		Favor:     countMap2SortedList(favorCount),
+		People:    countMap2SortedList(peopleCount),
+		Tag:       countMap2SortedList(tagCount),
+		Clarity:   countMap2SortedList(clarityCount),
+		Direction: countMap2SortedList(directionCount),
+		Vcodec:    countMap2SortedList(vcodecCount),
 	}
 	c.JSON(200, *res)
+}
+
+func countMap2SortedList(mp CountMap) []*CountPair {
+	res := make([]*CountPair, 0)
+	for k, v := range mp {
+		pair := &CountPair{
+			Name:  k,
+			Count: v,
+		}
+		res = append(res, pair)
+	}
+	sort.Slice(res, func(i, j int) bool {
+		return res[i].Count > res[j].Count
+	})
+	return res
 }
 
 // 获取automap.json的字符串

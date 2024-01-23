@@ -62,12 +62,17 @@ type Index_json struct {
 propertyList接口使用
 */
 type Property struct {
-	Favor     CountMap `json:"favor"`
-	People    CountMap `json:"people"`
-	Tag       CountMap `json:"tag"`
-	Clarity   CountMap `json:"clarity"` // 视频清晰度，如4K
-	Direction CountMap `json:"direction"`
-	Vcodec    CountMap `json:"vcodec"`
+	Favor     []*CountPair `json:"favor"`
+	People    []*CountPair `json:"people"`
+	Tag       []*CountPair `json:"tag"`
+	Clarity   []*CountPair `json:"clarity"` // 视频清晰度，如4K
+	Direction []*CountPair `json:"direction"`
+	Vcodec    []*CountPair `json:"vcodec"`
 }
 
 type CountMap map[string]int
+
+type CountPair struct {
+	Name  string `json:"name"`
+	Count int    `json:"count"`
+}
