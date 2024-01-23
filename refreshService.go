@@ -229,7 +229,7 @@ func RefreshService() {
 			}
 		}
 		items, err = os.ReadDir(favorPath)
-		if len(items) == 0 {
+		if len(items) == 0 && favorName != "【待分类】" {
 			os.Remove(favorPath)
 			continue
 		}
