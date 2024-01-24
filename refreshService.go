@@ -91,7 +91,7 @@ func RefreshService() {
 				quality1 := getStringValue(entry, "quality_pithy_description") // 4K、1080P或其他
 				quality2 := getStringValue(entry, "quality_superscript")       // 高码率或空字符串
 				clarity := quality1 + quality2
-				updateTime := getInt64Value(entry, "time_update_stamp")
+				updateTime := getInt64Value(entry, "time_create_stamp")
 				videoType := "single"
 				if len(pages) > 1 {
 					videoType = "multiple"
