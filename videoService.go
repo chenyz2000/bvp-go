@@ -45,15 +45,6 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 			if !MatchStringWithParam(videoInfo.Clarity, param.Clarity) {
 				continue
 			}
-			if param.PeopleMarked != "" {
-				peopleMarked := "未标注"
-				if len(videoInfo.CustomInfo.People) > 0 {
-					peopleMarked = "已标注"
-				}
-				if peopleMarked != param.PeopleMarked {
-					continue
-				}
-			}
 			// 其他条件
 			// 筛完后，加入resList
 			ele := &ListResultElement{

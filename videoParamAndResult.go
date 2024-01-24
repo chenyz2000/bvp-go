@@ -5,11 +5,10 @@ type ListParam struct {
 	Favor     string `form:"favor"`     // 多选，逗号分割
 	Direction string `form:"direction"` // 单选。取值：horizontal，vertical
 	People    string `form:"people"`    // 多选，逗号分割
+	Tag       string `form:"tag"`       // 多选，逗号分割
 	// 第二行
-	Tag          string `form:"tag"`           // 多选，逗号分割
-	Clarity      string `form:"clarity"`       // 多选，逗号分割
-	PeopleMarked string `form:"people_marked"` // 含义：已标注people。单选。取值：已标注，未标注
-	Vcodec       string `form:"vcodec"`        // 单选
+	Clarity string `form:"clarity"` // 多选，逗号分割
+	Vcodec  string `form:"vcodec"`  // 单选
 	// 其他
 	Sort     int `form:"sort"` // 负数为倒序，正数为顺序。1更新时间、2收藏时间、3名称、4星级，5UP主名。默认为-1
 	Page     int `form:"page"`
