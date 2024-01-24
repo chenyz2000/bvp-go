@@ -21,10 +21,10 @@ type VideoService struct {
 func (v *VideoService) List(param *ListParam) *ListResult {
 	videoList := make([]*ListResultElement, 0)
 	for favorName, infoMap := range favorMap {
-		if !MatchStringWithParam(favorName, param.Favor) {
+		if param.ExcludeFavor != "" && ParamContainsString(favorName, param.ExcludeFavor) ||
+			param.Favor != "" && !ParamContainsString(favorName, param.Favor) {
 			continue
 		}
-
 		for name, videoInfo := range infoMap {
 			if !matchKeywords(videoInfo, param.Keywords) {
 				continue
@@ -35,14 +35,16 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 			if param.Vcodec != "" && videoInfo.CustomInfo.Vcodec != param.Vcodec {
 				continue
 			}
-			if !HaveIntersection(videoInfo.CustomInfo.People, param.People) {
+			if param.ExcludePeople != "" && ParamIntersectsList(videoInfo.CustomInfo.People, param.ExcludePeople) ||
+				param.People != "" && !ParamIntersectsList(videoInfo.CustomInfo.People, param.People) {
+				continue
+			}
+			if param.ExcludeTag != "" && ParamIntersectsList(videoInfo.CustomInfo.Tag, param.ExcludeTag) ||
+				param.Tag != "" && !ParamIntersectsList(videoInfo.CustomInfo.Tag, param.Tag) {
 				continue
 			}
 			// 以下为不重要的选项
-			if !HaveIntersection(videoInfo.CustomInfo.Tag, param.Tag) {
-				continue
-			}
-			if !MatchStringWithParam(videoInfo.Clarity, param.Clarity) {
+			if param.Clarity != "" && !ParamContainsString(videoInfo.Clarity, param.Clarity) {
 				continue
 			}
 			// 其他条件
@@ -143,13 +145,20 @@ func gbkLess(str1, str2 string) bool {
 	return true
 }
 
+// 逗号表示与，竖划线表示或，减号表示非
 func matchKeywords(info *VideoInfo, keywords string) bool {
 	bytes, _ := json.MarshalIndent(info, "", "  ")
 	s := string(bytes)
 	for _, or := range strings.Split(keywords, "|") {
 		match := true
 		for _, and := range strings.Split(or, ",") {
-			if !strings.Contains(strings.ToLower(s), strings.ToLower(and)) {
+			not := false
+			if strings.HasPrefix(and, "-") {
+				not = true
+				and = strings.TrimPrefix(and, "-")
+			}
+			if strings.Contains(strings.ToLower(s), strings.ToLower(and)) == not {
+				// 如果为非，not=ture，包含则不匹配；如果不为非，not=false，不包含则不匹配
 				match = false
 				break
 			}

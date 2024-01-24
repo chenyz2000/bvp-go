@@ -176,14 +176,14 @@ func RefreshService() {
 				}
 				//automap—owner2People
 				target := owner2People[ownerName]
-				if target != "" && !MatchStringList(target, customInfo.People) {
+				if target != "" && !ListContainsString(target, customInfo.People) {
 					customInfo.People = append(customInfo.People, target)
 					fmt.Println("owner2people, key:", key, ", owner:", ownerName, ", people:", target)
 				}
 				//automap—title2People
 				for k := range title2People {
 					if strings.Contains(strings.ToLower(title), strings.ToLower(k)) &&
-						!MatchStringList(title2People[k], customInfo.People) {
+						!ListContainsString(title2People[k], customInfo.People) {
 						customInfo.People = append(customInfo.People, title2People[k])
 						fmt.Println("title2People, key:", key, ", title:", title, ", people:", k)
 					}
@@ -191,7 +191,7 @@ func RefreshService() {
 				//automap—title2Tag
 				for k := range title2Tag {
 					if strings.Contains(strings.ToLower(title), strings.ToLower(k)) &&
-						!MatchStringList(title2Tag[k], customInfo.Tag) {
+						!ListContainsString(title2Tag[k], customInfo.Tag) {
 						customInfo.Tag = append(customInfo.Tag, title2Tag[k])
 						fmt.Println("title2Tag, key:", key, ", title:", title, ", tag:", k)
 					}

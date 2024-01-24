@@ -129,23 +129,12 @@ func getListValue(mp map[string]interface{}, key string) []interface{} {
 }
 
 /*
-供List接口筛选时匹配使用
+基础方法
 */
-func MatchIntList(num int, num_list []int) bool {
-	if num_list == nil || len(num_list) == 0 {
-		return false
-	}
-	// go没有contain方法，需要手动遍历
-	for _, val := range num_list {
-		if num == val {
-			return true
-		}
-	}
-	return false
-}
-
-func MatchStringList(str string, str_list []string) bool {
-	for _, val := range str_list {
+// 因为go没有contain方法，需要手动遍历
+func ListContainsString(str string, lst []string) bool {
+	// 如果list为空，返回false
+	for _, val := range lst {
 		if str == val {
 			return true
 		}
@@ -157,29 +146,30 @@ func MatchStringList(str string, str_list []string) bool {
 	return false
 }
 
-func MatchStringWithParam(str_info string, str_param string) bool { // str_param是以逗号分割的字符串
-	if str_param == "" {
-		return true
-	}
-	return MatchStringList(str_info, strings.Split(str_param, ","))
-}
-
-func HaveIntersection(list_info []string, str_param string) bool {
-	if str_param == "" { // param中list为空则跳过筛选
-		return true
-	}
-	if list_info == nil || len(list_info) == 0 { // 若param中list不为空且info中list为空
-		if strings.Contains(str_param, "【未标注】") {
-			return true
-		}
-		return false
-	}
-	for _, v := range list_info {
-		if MatchStringWithParam(v, str_param) {
+func ListIntersection(infoList []string, paramList []string) bool {
+	for _, v := range infoList {
+		if ListContainsString(v, paramList) {
 			return true
 		}
 	}
 	return false
+}
+
+/*
+供List接口筛选时匹配使用
+*/
+func ParamContainsString(infoStr string, paramStr string) bool {
+	return ListContainsString(infoStr, strings.Split(paramStr, ","))
+}
+
+func ParamIntersectsList(infoList []string, paramStr string) bool {
+	if infoList == nil || len(infoList) == 0 { // 若param中list不为空且info中list为空
+		if strings.Contains(paramStr, "【未标注】") {
+			return true
+		}
+		return false
+	}
+	return ListIntersection(infoList, strings.Split(paramStr, ","))
 }
 
 /*

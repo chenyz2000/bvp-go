@@ -7,8 +7,11 @@ type ListParam struct {
 	People    string `form:"people"`    // 多选，逗号分割
 	Tag       string `form:"tag"`       // 多选，逗号分割
 	// 第二行
-	Clarity string `form:"clarity"` // 多选，逗号分割
-	Vcodec  string `form:"vcodec"`  // 单选
+	Clarity       string `form:"clarity"`        // 多选，逗号分割
+	Vcodec        string `form:"vcodec"`         // 单选
+	ExcludeFavor  string `form:"exclude_favor"`  // 多选，逗号分割
+	ExcludePeople string `form:"exclude_people"` // 多选，逗号分割
+	ExcludeTag    string `form:"exclude_tag"`    // 多选，逗号分割
 	// 其他
 	Sort     int `form:"sort"` // 负数为倒序，正数为顺序。1更新时间、2收藏时间、3名称、4星级，5UP主名。默认为-1
 	Page     int `form:"page"`
