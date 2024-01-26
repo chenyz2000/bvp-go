@@ -71,18 +71,18 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 		info2 := videoList[j].VideoInfo
 		switch sortType {
 		// TODO 对pageOrder进行排序
-		case 1: // 更新时间
-			return info1.UpdateTime > info2.UpdateTime
+		case 1: // 下载时间
+			return info1.DownloadTime > info2.DownloadTime
 		case 2: // 收藏时间
 			if info1.CustomInfo.CollectionTime != info2.CustomInfo.CollectionTime {
 				return info1.CustomInfo.CollectionTime > info2.CustomInfo.CollectionTime
 			}
-			return info1.UpdateTime > info2.UpdateTime
+			return info1.DownloadTime > info2.DownloadTime
 		case 3: // 星级，只用倒序
 			if info1.CustomInfo.StarLevel != info2.CustomInfo.StarLevel {
 				return info1.CustomInfo.StarLevel > info2.CustomInfo.StarLevel
 			}
-			return info1.UpdateTime > info2.UpdateTime
+			return info1.DownloadTime > info2.DownloadTime
 		case 4: // 标题名称中文拼音排序，只用顺序
 			if info1.Title != info2.Title {
 				return !gbkLess(info1.Title, info2.Title)
@@ -90,14 +90,14 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 			if info1.PageTitle != info2.PageTitle {
 				return !gbkLess(info1.PageTitle, info2.PageTitle)
 			}
-			return info1.UpdateTime < info2.UpdateTime
+			return info1.DownloadTime < info2.DownloadTime
 		case 5: // UP主名称中文拼音排序，只用顺序
 			if info1.OwnerName != info2.OwnerName {
 				return !gbkLess(info1.OwnerName, info2.OwnerName)
 			}
-			return info1.UpdateTime < info2.UpdateTime
+			return info1.DownloadTime < info2.DownloadTime
 		}
-		return info1.UpdateTime > info2.UpdateTime
+		return info1.DownloadTime > info2.DownloadTime
 	})
 	if !desc { // 顺序
 		reverse(videoList)

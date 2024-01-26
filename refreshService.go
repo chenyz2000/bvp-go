@@ -91,7 +91,7 @@ func RefreshService() {
 				quality1 := getStringValue(entry, "quality_pithy_description") // 4K、1080P或其他
 				quality2 := getStringValue(entry, "quality_superscript")       // 高码率或空字符串
 				clarity := quality1 + quality2
-				updateTime := getInt64Value(entry, "time_create_stamp")
+				downloadTime := getInt64Value(entry, "time_create_stamp")
 				videoType := "single"
 				if len(pages) > 1 {
 					videoType = "multiple"
@@ -166,9 +166,9 @@ func RefreshService() {
 				title := getStringValue(entry, "title")
 				//从旧favormap中读，而不是每次赋新值
 				customInfo := findCustomInfo(favorMap, key)
-				// 如果收藏时间为空，则设置为视频更新时间
+				// 如果收藏时间为空，则设置为视频下载时间
 				if customInfo.CollectionTime == 0 {
-					customInfo.CollectionTime = updateTime
+					customInfo.CollectionTime = downloadTime
 				}
 				// 如果视频编码为空，获取视频编码
 				if customInfo.Vcodec == "" {
@@ -207,7 +207,7 @@ func RefreshService() {
 					OwnerName:       ownerName,
 					MediaFolderName: mediaFolderName,
 					Cover:           cover,
-					UpdateTime:      updateTime,
+					DownloadTime:    downloadTime,
 					Direction:       direction,
 					Size:            getInt64Value(entry, "total_bytes"),
 					Duration:        getInt64Value(entry, "total_time_milli"),

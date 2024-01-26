@@ -13,7 +13,7 @@ type ListParam struct {
 	ExcludePeople string `form:"exclude_people"` // 多选，逗号分割
 	ExcludeTag    string `form:"exclude_tag"`    // 多选，逗号分割
 	// 其他
-	Sort     int `form:"sort"` // 负数为倒序，正数为顺序。1更新时间、2收藏时间、3名称、4星级，5UP主名。默认为-1
+	Sort     int `form:"sort"` // 负数为倒序，正数为顺序。1下载时间、2收藏时间、3名称、4星级，5UP主名。默认为-1
 	Page     int `form:"page"`
 	PageSize int `form:"page_size"`
 }
