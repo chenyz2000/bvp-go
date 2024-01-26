@@ -246,3 +246,31 @@ func DownloadPicture(url string, filepath string) bool {
 	}
 	return true
 }
+
+/*
+举例：
+data := GetOnlineVideoInfo("BV1PW41127BG")
+getInt64Value(data, "pubdate") // 发布时间，时间戳（秒）
+// 还可以获取视频简介，点赞观看投币数等
+*/
+func GetOnlineVideoInfo(bvid string) map[string]interface{} {
+	client := http.Client{}
+	response, err := client.Get("https://api.bilibili.com/x/web-interface/view?bvid=" + bvid)
+	if err != nil {
+		fmt.Println("获取视频在线信息失败", bvid)
+		return nil
+	}
+	defer response.Body.Close()
+	if response.StatusCode != http.StatusOK {
+		fmt.Println("响应码错误")
+		return nil
+	}
+	data, err := io.ReadAll(response.Body)
+	if err != nil {
+		fmt.Println("读取响应数据失败")
+		return nil
+	}
+	var mp map[string]interface{}
+	err = json.Unmarshal(data, &mp)
+	return getMapValueFromMap(mp, "data")
+}
