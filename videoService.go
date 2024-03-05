@@ -43,6 +43,12 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 				param.Tag != "" && !ParamIntersectsList(videoInfo.CustomInfo.Tag, param.Tag) {
 				continue
 			}
+			if param.MinDuration > 0 && videoInfo.Duration < param.MinDuration {
+				continue
+			}
+			if param.MaxDuration > 0 && videoInfo.Duration > param.MaxDuration {
+				continue
+			}
 			// 以下为不重要的选项
 			if param.Clarity != "" && !ParamContainsString(videoInfo.Clarity, param.Clarity) {
 				continue

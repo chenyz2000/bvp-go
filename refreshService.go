@@ -117,7 +117,9 @@ func RefreshService() {
 					continue
 				}
 				mediaFolderPath := pagePath + "/" + mediaFolderName + "/"
-				intactOne(mediaFolderPath, key)
+				if favorName != "【跳过合并】" {
+					intactOne(mediaFolderPath, key)
+				}
 
 				// 在page_data中的数据
 				var pageTitle, direction string
@@ -210,7 +212,7 @@ func RefreshService() {
 					DownloadTime:    downloadTime,
 					Direction:       direction,
 					Size:            getInt64Value(entry, "total_bytes"),
-					Duration:        getInt64Value(entry, "total_time_milli"),
+					Duration:        getInt64Value(entry, "total_time_milli") / 1000,
 					Clarity:         clarity,
 					Height:          height,
 					Width:           width,
@@ -229,7 +231,7 @@ func RefreshService() {
 			}
 		}
 		items, err = os.ReadDir(favorPath)
-		if len(items) == 0 && favorName != "【待分类】" {
+		if len(items) == 0 && favorName != "【待分类】" && favorName != "【跳过合并】" {
 			os.Remove(favorPath)
 			continue
 		}
