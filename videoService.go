@@ -7,9 +7,11 @@ import (
 	"golang.org/x/text/encoding/simplifiedchinese"
 	"golang.org/x/text/transform"
 	"io"
+	"math/rand"
 	"os"
 	"sort"
 	"strings"
+	"time"
 )
 
 type VideoService struct {
@@ -68,42 +70,49 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 	// 根据sort排序
 	sortType := param.Sort
 	desc := false
-	if sortType < 0 {
-		desc = true
-		sortType = -sortType
-	}
-	sort.Slice(videoList, func(i, j int) bool {
-		info1 := videoList[i].VideoInfo
-		info2 := videoList[j].VideoInfo
-		switch sortType {
-		// TODO 对pageOrder进行排序
-		case 1: // 发布时间
-			return info1.CustomInfo.PublishTime > info2.CustomInfo.PublishTime
-		case 2: // 下载时间
-			return info1.DownloadTime > info2.DownloadTime
-		case 3: // 星级，只用倒序
-			if info1.CustomInfo.StarLevel != info2.CustomInfo.StarLevel {
-				return info1.CustomInfo.StarLevel > info2.CustomInfo.StarLevel
-			}
-			return info1.CustomInfo.PublishTime > info2.CustomInfo.PublishTime
-		case 4: // 标题名称中文拼音排序，只用顺序
-			if info1.Title != info2.Title {
-				return !gbkLess(info1.Title, info2.Title)
-			}
-			if info1.PageTitle != info2.PageTitle {
-				return !gbkLess(info1.PageTitle, info2.PageTitle)
-			}
-			return info1.CustomInfo.PublishTime < info2.CustomInfo.PublishTime
-		case 5: // UP主名称中文拼音排序，只用顺序
-			if info1.OwnerName != info2.OwnerName {
-				return !gbkLess(info1.OwnerName, info2.OwnerName)
-			}
-			return info1.CustomInfo.PublishTime < info2.CustomInfo.PublishTime
+	if sortType == 0 { // 随机排序
+		rand.Seed(time.Now().UnixNano())
+		rand.Shuffle(len(videoList), func(i, j int) {
+			videoList[i], videoList[j] = videoList[j], videoList[i]
+		})
+	} else {
+		if sortType < 0 {
+			desc = true
+			sortType = -sortType
 		}
-		return info1.CustomInfo.PublishTime > info2.CustomInfo.PublishTime
-	})
-	if !desc { // 顺序
-		reverse(videoList)
+		sort.Slice(videoList, func(i, j int) bool {
+			info1 := videoList[i].VideoInfo
+			info2 := videoList[j].VideoInfo
+			switch sortType {
+			// TODO 对pageOrder进行排序
+			case 1: // 发布时间
+				return info1.CustomInfo.PublishTime > info2.CustomInfo.PublishTime
+			case 2: // 下载时间
+				return info1.DownloadTime > info2.DownloadTime
+			case 3: // 星级，只用倒序
+				if info1.CustomInfo.StarLevel != info2.CustomInfo.StarLevel {
+					return info1.CustomInfo.StarLevel > info2.CustomInfo.StarLevel
+				}
+				return info1.CustomInfo.PublishTime > info2.CustomInfo.PublishTime
+			case 4: // 标题名称中文拼音排序，只用顺序
+				if info1.Title != info2.Title {
+					return !gbkLess(info1.Title, info2.Title)
+				}
+				if info1.PageTitle != info2.PageTitle {
+					return !gbkLess(info1.PageTitle, info2.PageTitle)
+				}
+				return info1.CustomInfo.PublishTime < info2.CustomInfo.PublishTime
+			case 5: // UP主名称中文拼音排序，只用顺序
+				if info1.OwnerName != info2.OwnerName {
+					return !gbkLess(info1.OwnerName, info2.OwnerName)
+				}
+				return info1.CustomInfo.PublishTime < info2.CustomInfo.PublishTime
+			}
+			return info1.CustomInfo.PublishTime > info2.CustomInfo.PublishTime
+		})
+		if !desc { // 顺序
+			reverse(videoList)
+		}
 	}
 
 	// 分页

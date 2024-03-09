@@ -15,7 +15,7 @@ type ListParam struct {
 	MinDuration   int64  `form:"min_duration"`
 	MaxDuration   int64  `form:"max_duration"`
 	// 其他
-	Sort     int `form:"sort"` // 负数为倒序，正数为顺序。1发布时间、2下载时间、3名称、4星级，5UP主名。默认为-1
+	Sort     int `form:"sort"` // 负数为倒序，正数为顺序，0为随机。1发布时间、2下载时间、3名称、4星级，5UP主名。默认为-1
 	Page     int `form:"page"`
 	PageSize int `form:"page_size"`
 }
