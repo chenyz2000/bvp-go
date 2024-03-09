@@ -168,6 +168,20 @@ func RefreshService() {
 				title := getStringValue(entry, "title")
 				//从旧favormap中读，而不是每次赋新值
 				customInfo := findCustomInfo(favorMap, key)
+				// 如果发布时间为空，调用b站在线api获取发布时间
+				bvid := getStringValue(entry, "bvid")
+				if customInfo.PublishTime == 0 {
+					time.Sleep(50 * time.Millisecond)
+					onlineData := GetOnlineVideoInfo(bvid)
+					if onlineData != nil {
+						customInfo.PublishTime = getInt64Value(onlineData, "pubdate")
+						customInfo.OnlineDesc = getStringValue(onlineData, "desc")
+					} else {
+						// 如果无数据，则置为-1，之后不需要重新查询
+						customInfo.PublishTime = -1
+						customInfo.OnlineDesc = ""
+					}
+				}
 				// 如果收藏时间为空，则设置为视频下载时间
 				if customInfo.CollectionTime == 0 {
 					customInfo.CollectionTime = downloadTime
@@ -217,7 +231,7 @@ func RefreshService() {
 					Height:          height,
 					Width:           width,
 					Fps:             fps,
-					Bvid:            getStringValue(entry, "bvid"),
+					Bvid:            bvid,
 					Avid:            getInt64Value(entry, "avid"),
 					CustomInfo:      customInfo,
 				}

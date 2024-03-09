@@ -218,7 +218,7 @@ func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
 		err := os.Rename(oldPagePath, newPagePath)
 		if err != nil {
 			fmt.Println(oldPagePath + "移动至" + newPagePath + "错误")
-			return err
+			continue
 		}
 		oldItemPath := originDownloadFolderPath + oldFavorName + "/" + itemName
 		dir, _ := os.ReadDir(oldItemPath)

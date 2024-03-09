@@ -11,8 +11,10 @@ type CustomInfo struct {
 	NeedH264    bool     `json:"need_h264"`  // 不能直接播放h265视频
 
 	/* 以下字段只支持自动修改 */
-	CollectionTime int64  `json:"colletion_time"` // 收藏时间
+	PublishTime    int64  `json:"publish_time"`   //视频上线时间（秒）
+	CollectionTime int64  `json:"colletion_time"` // 收藏时间（毫秒）
 	Vcodec         string `json:"vcodec"`         // 视频编码
+	OnlineDesc     string `json:"online_desc"`    // 线上简介
 }
 
 type VideoInfo struct { // 视频的每一个分片对应一个VideoInfo
@@ -24,7 +26,7 @@ type VideoInfo struct { // 视频的每一个分片对应一个VideoInfo
 	OwnerName       string      `json:"owner_name"`
 	MediaFolderName string      `json:"media_folder_name"` // 媒体文件夹的名称，如16、112
 	Cover           string      `json:"cover"`
-	DownloadTime    int64       `json:"download_time"`
+	DownloadTime    int64       `json:"download_time"` // 下载时间（毫秒）
 	Direction       string      `json:"direction"`
 	Size            int64       `json:"size"`     // 大小，单位字节
 	Duration        int64       `json:"duration"` // 时长，单位毫秒
