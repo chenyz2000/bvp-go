@@ -7,6 +7,7 @@ import (
 	"net/http"
 	"os"
 	"reflect"
+	"strconv"
 	"strings"
 	"time"
 )
@@ -253,11 +254,11 @@ data := GetOnlineVideoInfo("BV1PW41127BG")
 getInt64Value(data, "pubdate") // 发布时间，时间戳（秒）
 // 还可以获取视频简介，点赞观看投币数等
 */
-func GetOnlineVideoInfo(bvid string) map[string]interface{} {
+func GetOnlineVideoInfo(avid int64) map[string]interface{} {
 	client := http.Client{}
-	response, err := client.Get("https://api.bilibili.com/x/web-interface/view?bvid=" + bvid)
+	response, err := client.Get("https://api.bilibili.com/x/web-interface/view?aid=" + strconv.FormatInt(avid, 10))
 	if err != nil {
-		fmt.Println("获取视频在线信息失败", bvid)
+		fmt.Println("获取视频在线信息失败", avid)
 		return nil
 	}
 	defer response.Body.Close()
