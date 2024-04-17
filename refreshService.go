@@ -4,6 +4,7 @@ import (
 	"encoding/json"
 	"fmt"
 	ffgo "github.com/u2takey/ffmpeg-go"
+	"math/rand"
 	"os"
 	"os/exec"
 	"path/filepath"
@@ -12,6 +13,11 @@ import (
 	"strings"
 	"time"
 )
+
+type KeySetElement struct {
+	Favor       string
+	PublishTime int64
+}
 
 func RefreshService() {
 	// 读取automap.json
@@ -29,8 +35,8 @@ func RefreshService() {
 	/*
 		更新FavorMap
 	*/
-	favorMap = Deserialize()        // 旧json文件
-	keySet := make(map[string]bool) // 用于判断intact视频是否多余
+	favorMap = Deserialize()                 // 旧json文件
+	keySet := make(map[string]KeySetElement) // 用于判断intact视频是否多余，键是key，值是favor
 
 	var newFavorMap FavorMap
 	newFavorMap = make(FavorMap)
@@ -43,6 +49,9 @@ func RefreshService() {
 	for _, favor := range favors {
 		// 注意这层只能有文件夹，若有其他文件，则会跳过refresh
 		favorName := favor.Name() // 收藏文件夹
+		if favorName == "【重复】" {
+			continue
+		}
 		favorPath := originDownloadFolderPath + favorName
 		if !IsDir(favorPath) || strings.HasPrefix(favorName, ".") || strings.HasPrefix(favorName, "@") {
 			fmt.Println("file not comply with refresh rule:", favorPath)
@@ -88,7 +97,6 @@ func RefreshService() {
 
 				// 完全不管番剧了，因为番剧下载的实在太少了，只支持普通视频的xml
 				key := itemName + videoNameConnector + pageName
-				keySet[key+".mp4"] = true
 
 				quality1 := getStringValue(entry, "quality_pithy_description") // 4K、1080P或其他
 				quality2 := getStringValue(entry, "quality_superscript")       // 高码率或空字符串
@@ -119,7 +127,8 @@ func RefreshService() {
 					continue
 				}
 				mediaFolderPath := pagePath + "/" + mediaFolderName + "/"
-				if favorName != "【跳过合并】" {
+				// 双减号表示跳过转码
+				if !strings.HasPrefix(favorName, "--") {
 					intactOne(mediaFolderPath, key)
 				}
 
@@ -238,7 +247,35 @@ func RefreshService() {
 					CustomInfo:      customInfo,
 				}
 
-				infoMap[key] = videoPage
+				// 查重
+				value, ok := keySet[key+".mp4"]
+				if ok {
+					// 全转移到【重复】中，然后从favorMap当中delete，不显示在前端
+					// 第二个
+					suffix := fmt.Sprintf("_%d_%d", customInfo.PublishTime, rand.Intn(999999))
+					err = MovePage(favorName, itemName, pageName, "【重复】", itemName, pageName+suffix)
+					if err != nil {
+						continue
+					}
+					// 第一个，可能已经转移走了
+					suffix = fmt.Sprintf("_%d_%d", value.PublishTime, rand.Intn(999999))
+					err = MovePage(value.Favor, itemName, pageName, "【重复】", itemName, pageName+suffix)
+					if err != nil {
+						continue
+					}
+					delete(newFavorMap[value.Favor], key)
+					err := os.Remove(intactVideoFolderPath + key + ".mp4")
+					if err != nil {
+						continue
+					}
+					fmt.Println("视频重复，key：" + key + "，收藏夹：" + value.Favor + "和" + favorName)
+				} else {
+					infoMap[key] = videoPage
+				}
+				keySet[key+".mp4"] = KeySetElement{
+					Favor:       favorName,
+					PublishTime: customInfo.PublishTime,
+				}
 			}
 			pages, err = os.ReadDir(itemPath)
 			if len(pages) == 0 {
@@ -264,7 +301,8 @@ func RefreshService() {
 	intactVideos, err := os.ReadDir(intactVideoFolderPath)
 	for _, intactVideo := range intactVideos {
 		intactVideoName := intactVideo.Name()
-		if !keySet[intactVideoName] {
+		_, ok := keySet[intactVideoName]
+		if !ok {
 			os.Remove(intactVideoFolderPath + intactVideoName)
 			fmt.Println("删除intactVideo：" + intactVideoName)
 		}

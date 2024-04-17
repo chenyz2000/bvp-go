@@ -213,7 +213,6 @@ func reverse(s []*ListResultElement) {
 更新视频Favor
 */
 func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
-	newFavorPath := originDownloadFolderPath + param.NewFavorName
 	for _, videoName := range param.VideoNameList {
 		oldFavorName := findFavorName(videoName, favorMap)
 		if oldFavorName == param.NewFavorName {
@@ -223,38 +222,10 @@ func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
 		tmp := strings.Split(videoName, videoNameConnector)
 		itemName := tmp[0]
 		pageName := tmp[1]
-		if !PathExists(newFavorPath) {
-			err := os.MkdirAll(newFavorPath, 0777) // 创建favor文件夹
-			favorMap[param.NewFavorName] = make(InfoMap)
-			if err != nil {
-				fmt.Println("文件夹创建错误", newFavorPath)
-				return err
-			}
-		}
-		newItemPath := newFavorPath + "/" + itemName
-		if !PathExists(newItemPath) {
-			err := os.MkdirAll(newItemPath, 0777) // 创建item文件夹
-			if err != nil {
-				fmt.Println("文件夹创建错误", newItemPath)
-				return err
-			}
-		}
 		// 移动文件夹
-		oldPagePath := originDownloadFolderPath + oldFavorName + "/" + itemName + "/" + pageName
-		newPagePath := originDownloadFolderPath + param.NewFavorName + "/" + itemName + "/" + pageName
-		err := os.Rename(oldPagePath, newPagePath)
+		err := MovePage(oldFavorName, itemName, pageName, param.NewFavorName, itemName, pageName)
 		if err != nil {
-			fmt.Println(oldPagePath + "移动至" + newPagePath + "错误")
 			continue
-		}
-		oldItemPath := originDownloadFolderPath + oldFavorName + "/" + itemName
-		dir, _ := os.ReadDir(oldItemPath)
-		if len(dir) == 0 { // 若旧item目录为空，则删除
-			err := os.Remove(oldItemPath)
-			if err != nil {
-				fmt.Println(oldItemPath + "删除错误")
-				return err
-			}
 		}
 		// 修改favorMap对象
 		favorMap[param.NewFavorName][videoName] = favorMap[oldFavorName][videoName]
@@ -262,6 +233,47 @@ func (v *VideoService) UpdateFavor(param *UpdateFavorParam) error {
 	}
 	// 写入文件
 	Serialize(favorMap)
+	return nil
+}
+
+func MovePage(oldFavor string, oldItem string, oldPage string, newFavor string, newItem string, newPage string) error {
+	oldItemPath := originDownloadFolderPath + oldFavor + "/" + oldItem
+	oldPagePath := oldItemPath + "/" + oldPage
+	newFavorPath := originDownloadFolderPath + newFavor
+	newItemPath := newFavorPath + "/" + newItem
+	newPagePath := newItemPath + "/" + newPage
+
+	if !PathExists(newFavorPath) {
+		err := os.MkdirAll(newFavorPath, 0777) // 创建favor文件夹
+		favorMap[newFavor] = make(InfoMap)
+		if err != nil {
+			fmt.Println("文件夹创建错误", newFavorPath)
+			return err
+		}
+	}
+
+	if !PathExists(newItemPath) {
+		err := os.MkdirAll(newItemPath, 0777) // 创建item文件夹
+		if err != nil {
+			fmt.Println("文件夹创建错误", newItemPath)
+			return err
+		}
+	}
+
+	err := os.Rename(oldPagePath, newPagePath)
+	if err != nil {
+		fmt.Println(oldPagePath + "移动至" + newPagePath + "错误")
+		return err
+	}
+	// 若旧item目录为空，则删除
+	dir, _ := os.ReadDir(oldItemPath)
+	if len(dir) == 0 {
+		err := os.Remove(oldItemPath)
+		if err != nil {
+			fmt.Println(oldItemPath + "删除错误")
+			return err
+		}
+	}
 	return nil
 }
 
