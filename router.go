@@ -3,6 +3,7 @@ package main
 import (
 	"github.com/gin-contrib/cors"
 	"github.com/gin-gonic/gin"
+	"net/http"
 )
 
 func NewRouter() *gin.Engine {
@@ -10,8 +11,8 @@ func NewRouter() *gin.Engine {
 	router.Use(cors.Default())
 
 	// 将资源映射到url
-	router.Static("/video", intactVideoFolderPath)
-	router.Static("/cover", coverFolderPath)
+	router.StaticFS("/video", http.Dir(intactVideoFolderPath))
+	router.StaticFS("/cover", http.Dir(coverFolderPath))
 
 	apiGroup := router.Group("/api")
 	commonApi := &CommonApi{}

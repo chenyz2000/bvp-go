@@ -14,6 +14,8 @@ import (
 	"time"
 )
 
+var randomSeed = time.Now().UnixNano()
+
 type VideoService struct {
 }
 
@@ -71,7 +73,26 @@ func (v *VideoService) List(param *ListParam) *ListResult {
 	sortType := param.Sort
 	desc := false
 	if sortType == 0 { // 随机排序
-		rand.Seed(time.Now().UnixNano())
+		// 需要先排序，因为从map拿出来的数据是乱序的
+		sort.Slice(videoList, func(i, j int) bool {
+			info1 := videoList[i].VideoInfo
+			info2 := videoList[j].VideoInfo
+			if info1.CustomInfo.PublishTime != info2.CustomInfo.PublishTime {
+				return info1.CustomInfo.PublishTime > info2.CustomInfo.PublishTime
+			}
+			if info1.Title != info2.Title {
+				return !gbkLess(info1.Title, info2.Title)
+			}
+			return !gbkLess(info1.PageTitle, info2.PageTitle)
+		})
+		if param.NewRandomSort {
+			randomSeed = time.Now().UnixNano()
+		}
+		rand.Seed(randomSeed)
+		//for i := len(videoList) - 1; i > 0; i-- { // Fisher–Yates shuffle
+		//	j := rand.Intn(i + 1)
+		//	videoList[i], videoList[j] = videoList[j], videoList[i]
+		//}
 		rand.Shuffle(len(videoList), func(i, j int) {
 			videoList[i], videoList[j] = videoList[j], videoList[i]
 		})
