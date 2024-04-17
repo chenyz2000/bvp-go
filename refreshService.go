@@ -29,7 +29,8 @@ func RefreshService() {
 	/*
 		更新FavorMap
 	*/
-	favorMap = Deserialize() // 旧json文件
+	favorMap = Deserialize()        // 旧json文件
+	keySet := make(map[string]bool) // 用于判断intact视频是否多余
 
 	var newFavorMap FavorMap
 	newFavorMap = make(FavorMap)
@@ -87,6 +88,7 @@ func RefreshService() {
 
 				// 完全不管番剧了，因为番剧下载的实在太少了，只支持普通视频的xml
 				key := itemName + videoNameConnector + pageName
+				keySet[key+".mp4"] = true
 
 				quality1 := getStringValue(entry, "quality_pithy_description") // 4K、1080P或其他
 				quality2 := getStringValue(entry, "quality_superscript")       // 高码率或空字符串
@@ -257,6 +259,16 @@ func RefreshService() {
 
 	// 写入info.json文件
 	Serialize(favorMap)
+
+	// 删除多余的intactVideo
+	intactVideos, err := os.ReadDir(intactVideoFolderPath)
+	for _, intactVideo := range intactVideos {
+		intactVideoName := intactVideo.Name()
+		if !keySet[intactVideoName] {
+			os.Remove(intactVideoFolderPath + intactVideoName)
+			fmt.Println("删除intactVideo：" + intactVideoName)
+		}
+	}
 }
 
 // 转置Map，取list中的字符串作为键
